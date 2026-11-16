@@ -7,3 +7,6 @@ export const layersTab: SidebarTab = {
   title: 'Camadas',
   content: LayersPanel,
 };
+
+/** Camadas ligadas, para renderizar dentro da cena 3D (usado pelo viewport). */
+export { EnabledLayers } from './EnabledLayers';

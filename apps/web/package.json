@@ -13,16 +13,21 @@
   "dependencies": {
     "@moody/data-sources": "*",
     "@moody/theme": "*",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-grid-layout": "^2.3.0",
     "react-resizable": "^3.2.0",
+    "three": "^0.187.0",
+    "three-stdlib": "^2.36.1",
     "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.3.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.7"

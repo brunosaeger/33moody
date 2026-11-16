@@ -218,7 +218,7 @@ shared/             UI básica (botões, menus, SplitPane), utilitários genéri
 | Fase | Entrega | Resultado visível |
 |---|---|---|
 | **0** | Monorepo, tema, shell da tela (header + viewport + menu lateral) | A "cara" do 33moody aberta no navegador |
-| **1** | Viewport 3D com câmera (livre + presets), grid e estado "Conecte o robô" | Navegar numa cena vazia |
+| **1** ✅ | Viewport 3D (r3f, convenção ROS z-up) + câmera livre e presets (orbital, seguir, topo) + camadas v1: mapa, modelo AMR genérico, LaserScan, rastro, velocidade comandada × medida, TF | Robô andando na cena, ao vivo e no replay |
 | **2** | `replay-engine` + `DemoSource` (dados sintéticos) + timeline completa | Arrastar o cursor e ver uma caixa-robô andar |
 | **3** | Camadas v1 (mapa, TF, scan, path, rastro, cmd_vel) + componentes | Um "RViz" com replay sobre dados sintéticos |
 | **4** | Dataset real: Gazebo + Nav2 + TB4, gravado em MCAP; `ReplaySource` lê MCAP | Replay de uma navegação real simulada |

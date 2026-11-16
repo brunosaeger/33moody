@@ -1,0 +1,29 @@
+/* Mesmo padrão do seletor de modos do LIFTYMapper */
+.toolbar {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: rgba(14, 17, 22, 0.85);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(4px);
+}
+
+.option {
+  padding: 5px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.option:hover {
+  color: var(--text-primary);
+}
+
+.option[aria-pressed='true'] {
+  background: var(--panel-raised-hi);
+  color: var(--text-primary);
+}

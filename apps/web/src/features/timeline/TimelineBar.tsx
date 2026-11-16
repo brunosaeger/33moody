@@ -3,7 +3,7 @@ import { useClock } from '@/data';
 import { useElementWidth } from '@/shared/hooks/useElementWidth';
 import { useNow } from '@/shared/hooks/useNow';
 import { computeTicks, liveWindow, posToTime, replayWindow, timeToPos } from './ruler';
-import { formatClock } from './timeFormat';
+import { formatClock } from '@/shared/lib/timeFormat';
 import styles from './TimelineBar.module.css';
 
 const pct = (pos: number) => `${(pos * 100).toFixed(3)}%`;

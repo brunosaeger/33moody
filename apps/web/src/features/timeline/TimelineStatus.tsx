@@ -1,6 +1,6 @@
 import { useClock } from '@/data';
 import { useNow } from '@/shared/hooks/useNow';
-import { formatClock, formatDateBR, formatDuration } from './timeFormat';
+import { formatClock, formatDateBR, formatDuration } from '@/shared/lib/timeFormat';
 import styles from './TimelineStatus.module.css';
 
 /** Horário que a tela está mostrando: o "agora" ao vivo, ou o cursor no replay. */

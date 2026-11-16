@@ -11,6 +11,12 @@ export interface DemoTopic<T = unknown> {
   /** Frequência de publicação (Hz). */
   rateHz: number;
   /**
+   * Tópico "latched" (durabilidade transient local no ROS2, como /map e
+   * /tf_static): quem assina recebe a última mensagem na hora, sem esperar
+   * a próxima publicação.
+   */
+  latched?: boolean;
+  /**
    * Monta a mensagem a partir do estado do robô no instante `timeMs` (epoch ms).
    * `noise` vem de fora: aleatório ao vivo, determinístico no replay.
    */

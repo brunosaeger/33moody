@@ -41,7 +41,8 @@ Ainda vão entrar (ver o roadmap na spec): `packages/protocol`, `packages/replay
 app/        composição: a tela única e o registro de janelas (panels.ts)
 data/       sessão ativa (qual fonte de dados) e hooks React de leitura
 features/   uma pasta por funcionalidade (header, viewport, sidebar, connection…)
-lib/        helpers de domínio sem UI (ex.: lib/ros: formatar mensagens)
+config/     perfil do robô: tópicos, frames e dimensões (nada disso fica no código)
+lib/        helpers de domínio sem UI (lib/ros: mensagens; lib/scene3d: pose do robô na cena)
 shared/     UI e utilitários genéricos, sem regra de negócio
 ```
 

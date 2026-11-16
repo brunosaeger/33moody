@@ -1,5 +1,5 @@
 import type { TimeRange } from '@/data';
-import { parseLocalDateTime } from './timeFormat';
+import { parseLocalDateTime } from '@/shared/lib/timeFormat';
 
 /** Faixa máxima de replay (o pacote de replay baixa tudo de uma vez). */
 const MAX_RANGE_MS = 24 * 60 * 60 * 1000;

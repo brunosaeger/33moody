@@ -3,7 +3,7 @@ import { useClock } from '@/data';
 import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/icons';
 import { validateRange } from './rangeInput';
-import { formatDateBR, parseLocalDateTime, toDateInput, toTimeInput } from './timeFormat';
+import { formatDateBR, parseLocalDateTime, toDateInput, toTimeInput } from '@/shared/lib/timeFormat';
 import styles from './RangePicker.module.css';
 
 /** Sugestão inicial: os últimos 10 minutos (o técnico só ajusta e confirma). */

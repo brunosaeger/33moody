@@ -1,4 +1,4 @@
-import { formatClock, formatHourMinute } from './timeFormat';
+import { formatClock, formatHourMinute } from '@/shared/lib/timeFormat';
 
 /**
  * Régua da timeline: janela visível, conversão tempo <-> posição e traços.

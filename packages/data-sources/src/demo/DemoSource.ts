@@ -71,7 +71,17 @@ export class DemoSource implements DataSource {
   }
 
   subscribe(topic: string, listener: MessageListener): Unsubscribe {
-    return this.registry.subscribe(topic, listener);
+    const unsubscribe = this.registry.subscribe(topic, listener);
+    // Latched: entrega a mensagem atual logo após assinar (fora da pilha atual).
+    const def = this.byName.get(topic);
+    if (def?.latched && this.timer) {
+      queueMicrotask(() => {
+        const now = Date.now();
+        const state = demoStateAt((now - this.epochMs) / 1000);
+        listener({ topic, schemaName: def.schemaName, timeMs: now, message: def.build(state, now, this.liveNoise) });
+      });
+    }
+    return unsubscribe;
   }
 
   messageAt(topic: string, timeMs: number): MessageEvent | undefined {
