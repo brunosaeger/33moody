@@ -1,0 +1,97 @@
+.widget {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-base);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 4px 0 8px;
+  background: var(--panel-raised-hi);
+  border-bottom: 1px solid var(--panel-line);
+  cursor: grab;
+}
+
+.header:active {
+  cursor: grabbing;
+}
+
+.topic {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.schema {
+  flex: 1;
+  min-width: 0;
+  /* line-height folgado: com overflow hidden, o "_" de sensor_msgs era cortado */
+  line-height: 1.6;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hz {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hz[data-live] {
+  color: var(--state-success);
+}
+
+.replay {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-amber);
+}
+
+.remove {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.remove:hover {
+  color: var(--state-error);
+  background: var(--panel-line);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 8px;
+  user-select: text; /* valores podem ser copiados */
+}
+
+.status {
+  font-size: 12px;
+  color: var(--text-muted);
+}

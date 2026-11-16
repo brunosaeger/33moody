@@ -1,0 +1,53 @@
+.root {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.side {
+  flex: none;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Divisor: área de pega de 6px, linha visível de 1px no meio. */
+.handle {
+  flex: none;
+  width: 6px;
+  cursor: col-resize;
+  position: relative;
+  touch-action: none;
+  outline: none;
+}
+
+.handle::after {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  background: var(--panel-line);
+  transition: background 0.12s ease;
+}
+
+.handle:hover::after,
+.handle:focus-visible::after,
+.root[data-dragging] .handle::after {
+  background: var(--accent-cyan-dim);
+}
+
+/* Durante o arraste: cursor fixo e nada de seleção de texto acidental. */
+.root[data-dragging] {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.root[data-dragging] .main,
+.root[data-dragging] .side {
+  pointer-events: none;
+}

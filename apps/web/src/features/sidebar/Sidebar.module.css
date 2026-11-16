@@ -1,0 +1,50 @@
+.sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-raised);
+}
+
+.tabBar {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  height: 34px;
+  background: var(--panel-base);
+  border-bottom: 1px solid var(--panel-line);
+}
+
+.tab {
+  padding: 0 14px;
+  border: none;
+  border-right: 1px solid var(--panel-line);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+/* Aba ativa: mesmo fundo do conteúdo + filete âmbar no topo */
+.tab[aria-selected='true'] {
+  background: var(--panel-raised);
+  color: var(--text-primary);
+  box-shadow: inset 0 2px 0 var(--accent-amber);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+}

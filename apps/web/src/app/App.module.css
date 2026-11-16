@@ -1,0 +1,12 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.main {
+  flex: 1;
+  min-height: 0; /* sem isso, o filho flex não encolhe e o conteúdo estoura a altura */
+  position: relative;
+}

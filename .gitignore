@@ -1,0 +1,18 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# ROS2 / colcon
+robot/build/
+robot/install/
+robot/log/
+
+# Datasets grandes (bags, pacotes de replay gerados)
+datasets/
+*.mcap
+*.db3
+
+.env
+.env.*
+.DS_Store

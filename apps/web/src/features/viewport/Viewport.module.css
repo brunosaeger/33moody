@@ -1,0 +1,24 @@
+.viewport {
+  position: relative;
+  height: 100%;
+  background-color: var(--panel-base);
+  /* Grade sutil de fundo, só para dar sensação de "espaço" até a cena 3D existir */
+  background-image:
+    linear-gradient(var(--panel-raised) 1px, transparent 1px),
+    linear-gradient(90deg, var(--panel-raised) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.center {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlayTopLeft {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+}

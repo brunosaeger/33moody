@@ -1,0 +1,143 @@
+/* Retângulo arredondado da timeline */
+.bar {
+  position: relative;
+  height: 58px;
+  margin: 0 8px;
+  background: var(--panel-base);
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.bar[data-mode='replay'] {
+  cursor: pointer;
+}
+
+/* ---------- Régua ---------- */
+
+.tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 8px;
+  background: var(--panel-line);
+  pointer-events: none;
+}
+
+.tick[data-major] {
+  height: 16px;
+  background: var(--text-muted);
+  opacity: 0.7;
+}
+
+.tickLabel {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---------- Faixa do replay (marcadores vermelhos) ---------- */
+
+.rangeFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(244, 91, 105, 0.07);
+  pointer-events: none;
+}
+
+.rangeMarker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-50%);
+  background: var(--state-error);
+  box-shadow: 0 0 6px rgba(244, 91, 105, 0.6);
+  pointer-events: none;
+}
+
+/* ---------- Cursor em seta ---------- */
+
+.cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.cursorArrow {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 16px;
+  height: 12px;
+  fill: var(--accent-amber);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.cursorLine {
+  position: absolute;
+  top: 10px;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--accent-amber);
+}
+
+.cursorLabel {
+  position: absolute;
+  top: 16px;
+  left: 6px;
+  padding: 1px 4px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--panel-base);
+  background: var(--accent-amber);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.cursor[data-flip] .cursorLabel {
+  left: auto;
+  right: 6px;
+}
+
+/* ---------- Ao vivo: marcador "agora" ---------- */
+
+.now {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.nowLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+.nowLabel {
+  position: absolute;
+  top: 16px;
+  right: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-cyan);
+}

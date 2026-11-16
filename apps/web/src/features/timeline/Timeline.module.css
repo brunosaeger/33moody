@@ -1,0 +1,30 @@
+.timeline {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  background: var(--panel-raised);
+  border-top: 1px solid var(--panel-line);
+}
+
+/* Três colunas: relógio | controles (centralizados) | ao vivo */
+.controlsRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.left {
+  justify-self: start;
+}
+
+.right {
+  justify-self: end;
+}
+
+.rangeRow {
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,22 @@
+.board {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Sombra de "onde vai cair" durante arraste/redimensionamento, no tom do 33moody */
+.grid :global(.react-grid-placeholder) {
+  background: var(--accent-cyan);
+  opacity: 0.15;
+  border-radius: var(--radius-md);
+}
+
+/* Alça de redimensionar (canto inferior direito) mais discreta e no tema escuro */
+.grid :global(.react-resizable-handle) {
+  opacity: 0.5;
+  filter: invert(1);
+}
+
+.grid :global(.react-grid-item:hover .react-resizable-handle) {
+  opacity: 1;
+}

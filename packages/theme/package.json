@@ -1,0 +1,13 @@
+{
+  "name": "@moody/theme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tokens visuais do 33moody (fonte única para CSS e Three.js)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

@@ -1,0 +1,47 @@
+/*
+ * Estilos globais mínimos: reset e base.
+ * As cores vêm de @moody/theme (CSS variables aplicadas em main.tsx).
+ * O estilo de cada feature fica no próprio CSS module dela.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--panel-base);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  overflow: hidden;
+  /* Ferramenta de trabalho: arrastar o mouse não deve selecionar a UI. */
+  user-select: none;
+  /* Só desktop: abaixo disso a tela rola em vez de quebrar o layout. */
+  min-width: 1280px;
+}
+
+/* Barras de rolagem finas e escuras, no tom dos painéis (padrão CSS, todos os navegadores modernos) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-line) transparent;
+}
+
+input,
+textarea {
+  user-select: text;
+  font-family: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
