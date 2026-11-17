@@ -22,6 +22,8 @@ export const colors = {
   // Texto
   textPrimary: '#edeff3',
   textMuted: '#8a93a3',
+  /** Texto sobre cores vivas (ex.: a letra dos pontos de interesse): branco puro. */
+  textOnVivid: '#ffffff',
 
   // Acentos
   accentAmber: '#f5a524',

@@ -22,7 +22,10 @@ export function RangePicker() {
   // Sugestão inicial: a gravação inteira, ou os últimos 10 minutos ao vivo.
   const [initial] = useState(() => {
     const b = getBounds();
-    return b.recorded ? b : { startMs: b.endMs - SUGGESTED_SPAN_MS, endMs: b.endMs };
+    if (b.recorded) return b;
+    // Ao vivo, segundos inteiros: milissegundos aqui seriam só ruído.
+    const end = Math.floor(b.endMs / 1000) * 1000;
+    return { startMs: end - SUGGESTED_SPAN_MS, endMs: end };
   });
   const [date, setDate] = useState(() => toDateInput(initial.startMs));
   const [start, setStart] = useState(() => toTimeInput(initial.startMs));

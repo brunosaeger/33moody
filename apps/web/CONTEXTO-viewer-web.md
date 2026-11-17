@@ -14,12 +14,12 @@ React 19 + TypeScript estrito + Vite 8, zustand 5 (com `persist`), CSS Modules, 
 | `features/timeline/` | Linha do tempo | [CONTEXTO-linha-do-tempo.md](src/features/timeline/CONTEXTO-linha-do-tempo.md) |
 | `features/robot-components/` | Aba Componentes | [CONTEXTO-componentes.md](src/features/robot-components/CONTEXTO-componentes.md) |
 | `features/sidebar/` | Menu lateral direito: abas + divisor (largura 260–900 px, padrão 340, viewport mínimo 480 px; salvo em `moody.sidebar.v1`). Não importa features: recebe `SidebarTab[]` | — |
-| `features/header/` | Barra superior com slots `start`/`center`/`end`. Título: "33 Robotics \| Plataforma de Diagnóstico" em Helvetica (`--font-brand`); a aba do navegador usa o mesmo texto | — |
+| `features/header/` | Barra superior com slots `start`/`center`/`end`. Título: "33 Robotics \| Plataforma de Diagnóstico" em Helvetica (`--font-brand`); a aba do navegador usa o mesmo texto. `FullscreenButton` (encaixado pelo `App` no slot `end`) liga/desliga a tela cheia via `shared/hooks/useFullscreen` (Fullscreen API; acompanha a saída por Esc/F11 pelo `fullscreenchange`) | — |
 | `features/connection/` | `ConnectCard`: perfil do robô (vale para os dois casos) + endereço `ws://` → `FoxgloveSource`; "Abrir gravação (.mcap)" → `McapSource`; ou "Usar robô demo". Endereço e perfil ficam em `moody.connection.v1`. `ConnectionBadge`: "perfil · host/arquivo" + Desconectar | — |
 | `lib/ros/` | Tipos de mensagens (Twist/TwistStamped + `twistOf`, Odometry, LaserScan, OccupancyGrid, TFMessage), `quaternionToYaw`, `flattenMessage`, `schemaName` | — |
 | `lib/tf/` | Árvore de TF com histórico, matemática de transformações e `trajectoryFromTf`, puras | [viewport](src/features/viewport/CONTEXTO-viewport-3d.md) |
 | `lib/scene3d/` | `TfTreeProvider`, `sceneFrame`, `RobotPoseProvider`, `useRobotPose`, `FollowRobot` | [viewport](src/features/viewport/CONTEXTO-viewport-3d.md) |
-| `shared/` | Genérico, sem regra de negócio: `ui/` (Button, Menu, MenuButton, SplitPane, EmptyState, icons), `lib/` (id, storage, timeFormat), `hooks/` (useNow, useElementWidth) | — |
+| `shared/` | Genérico, sem regra de negócio: `ui/` (Button, Menu com busca opcional `searchable` (↑ ↓ Enter), MenuButton, SplitPane, EmptyState, icons), `lib/` (id, storage, timeFormat), `hooks/` (useNow, useElementWidth) | — |
 
 ## Convenções
 

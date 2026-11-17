@@ -2,6 +2,7 @@ import { useMemo, useRef, type PointerEvent } from 'react';
 import { useClock } from '@/data';
 import { useElementWidth } from '@/shared/hooks/useElementWidth';
 import { useNow } from '@/shared/hooks/useNow';
+import { MarkerFlags } from './markers';
 import { computeTicks, liveWindow, posToTime, replayWindow, timeToPos } from './ruler';
 import { formatClockMs } from '@/shared/lib/timeFormat';
 import styles from './TimelineBar.module.css';
@@ -79,6 +80,9 @@ export function TimelineBar() {
           <div className={styles.rangeMarker} style={{ left: pct(timeToPos(range.startMs, view)) }} title="Início da faixa" />
           <div className={styles.rangeMarker} style={{ left: pct(timeToPos(range.endMs, view)) }} title="Fim da faixa" />
 
+          {/* Pontos de interesse (Q…M), abaixo do cursor */}
+          <MarkerFlags view={view} />
+
           {/* Cursor em seta (rótulo vira para a esquerda perto da borda direita) */}
           <div
             className={styles.cursor}
@@ -93,10 +97,13 @@ export function TimelineBar() {
           </div>
         </>
       ) : (
-        <div className={styles.now} style={{ left: pct(timeToPos(now, view)) }}>
-          <span className={styles.nowLabel}>AGORA</span>
-          <div className={styles.nowLine} />
-        </div>
+        <>
+          <MarkerFlags view={view} />
+          <div className={styles.now} style={{ left: pct(timeToPos(now, view)) }}>
+            <span className={styles.nowLabel}>AGORA</span>
+            <div className={styles.nowLine} />
+          </div>
+        </>
       )}
     </div>
   );

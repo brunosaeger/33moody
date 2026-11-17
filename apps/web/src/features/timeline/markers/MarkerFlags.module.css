@@ -1,0 +1,49 @@
+/* Ponto de interesse: bolinha no topo ligada a uma faixa vertical. */
+.flag {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.stripe {
+  position: absolute;
+  top: 16px; /* começa embaixo da bolinha */
+  bottom: 0;
+  left: -1.5px;
+  width: 3px;
+  background: var(--marker-color);
+  box-shadow: 0 0 8px var(--marker-color);
+}
+
+.bubble {
+  position: absolute;
+  top: 2px;
+  left: -9px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--marker-color);
+  box-shadow:
+    0 0 0 1.5px var(--panel-base),
+    0 0 10px var(--marker-color);
+  color: var(--text-on-vivid); /* sempre branca, sobre qualquer tom */
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.12s;
+}
+
+.bubble:hover {
+  transform: scale(1.18);
+}

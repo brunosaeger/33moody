@@ -23,12 +23,19 @@
 }
 
 .topic {
-  max-width: 170px;
-  padding: 4px 6px;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px 8px;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-primary);
   background: var(--panel-base);
   border: 1px solid var(--panel-line);
   border-radius: var(--radius-sm);
+}
+
+.topic:hover {
+  border-color: var(--accent-amber-dim);
 }

@@ -18,6 +18,8 @@ export function AddComponentButton() {
       icon="plus"
       title="Tópicos"
       align="right"
+      searchable
+      searchPlaceholder="Buscar tópico ou tipo…"
       emptyText={connected ? 'Nenhum tópico disponível' : 'Nenhum robô conectado'}
       getItems={() =>
         topics.map((topic) => ({

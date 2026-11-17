@@ -1,0 +1,28 @@
+.button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.button:hover {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan-dim);
+  background: var(--panel-raised-hi);
+}
+
+/* Em tela cheia o botão fica "aceso", lembrando como sair. */
+.button[aria-pressed='true'] {
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan-dim);
+}

@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useClock, useRobotProfile, useSession, useTopics } from '@/data';
+import { shortSchemaName } from '@/lib/ros';
 import { Icon } from '@/shared/ui/icons';
+import { Menu } from '@/shared/ui/Menu';
+import { useStepperStore } from './stepperStore';
+import { canStepMessages, stepMessage, stepTopic } from './transport';
 import styles from './MessageStepper.module.css';
 
 /**
  * Anda o cursor MENSAGEM POR MENSAGEM de um tópico (como a seta → do
- * `ros2 bag play`, mas nos dois sentidos). Para achar o instante exato em
- * que algo mudou: um comando novo no /cmd_vel, um scan novo.
+ * `ros2 bag play`, mas nos dois sentidos): `⏮ [tópico] ⏭`, ou `,` e `.`
+ * no teclado. Para achar o instante exato em que algo mudou: um comando
+ * novo no /cmd_vel, um scan novo.
  *
  * Só aparece no replay e se a fonte sabe responder a mensagem vizinha.
  */
@@ -15,37 +20,66 @@ export function MessageStepper() {
   const mode = useClock((s) => s.mode);
   const topics = useTopics();
   const profile = useRobotProfile();
-  const [chosen, setChosen] = useState<string | null>(null);
+  const chosen = useStepperStore((s) => s.topic);
+  const setTopic = useStepperStore((s) => s.setTopic);
+  const pickerRef = useRef<HTMLButtonElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  if (mode !== 'replay' || !source?.neighborMessageTime || topics.length === 0) return null;
-
-  // Padrão: o scan do perfil (mensagens frequentes e visíveis na cena).
-  const names = topics.map((t) => t.name);
-  const topic = chosen && names.includes(chosen) ? chosen : names.includes(profile.topics.scan) ? profile.topics.scan : names[0]!;
-
-  const step = (direction: 1 | -1) => {
-    const clock = useClock.getState();
-    const t = source.neighborMessageTime?.(topic, clock.cursorMs, direction);
-    if (t === undefined) return;
-    clock.setPlaying(false);
-    clock.seek(t);
-  };
+  if (mode !== 'replay' || !canStepMessages(source) || topics.length === 0) return null;
+  const topic = stepTopic(
+    chosen,
+    topics.map((t) => t.name),
+    profile,
+  );
 
   return (
-    <div className={styles.stepper} title="Andar mensagem por mensagem do tópico escolhido">
-      <button type="button" className={styles.button} onClick={() => step(-1)} aria-label="Mensagem anterior">
+    <div className={styles.stepper}>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={() => stepMessage(-1)}
+        aria-label="Mensagem anterior"
+        title="Mensagem anterior do tópico ( , )"
+      >
         <Icon name="stepBack" size={14} />
       </button>
-      <select className={styles.topic} value={topic} onChange={(e) => setChosen(e.target.value)} aria-label="Tópico do passo">
-        {names.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
-      <button type="button" className={styles.button} onClick={() => step(1)} aria-label="Próxima mensagem">
+      <button
+        ref={pickerRef}
+        type="button"
+        className={styles.topic}
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-label="Tópico do passo"
+        aria-expanded={menuOpen}
+        title="Tópico usado para andar mensagem por mensagem"
+      >
+        {topic}
+      </button>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={() => stepMessage(1)}
+        aria-label="Próxima mensagem"
+        title="Próxima mensagem do tópico ( . )"
+      >
         <Icon name="stepForward" size={14} />
       </button>
+
+      {menuOpen && pickerRef.current && (
+        <Menu
+          anchor={pickerRef.current}
+          onClose={closeMenu}
+          title="Andar mensagem por mensagem em"
+          searchable
+          searchPlaceholder="Buscar tópico ou tipo…"
+          items={topics.map((t) => ({
+            id: t.name,
+            label: t.name,
+            hint: shortSchemaName(t.schemaName),
+            onSelect: () => setTopic(t.name),
+          }))}
+        />
+      )}
     </div>
   );
 }

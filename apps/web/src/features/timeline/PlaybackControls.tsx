@@ -22,7 +22,7 @@ function SkipButton({ seconds, direction, label, disabled }: SkipButtonProps) {
       type="button"
       className={styles.skip}
       disabled={disabled}
-      title={`${direction < 0 ? 'Voltar' : 'Avançar'} ${seconds} s`}
+      title={`${direction < 0 ? 'Voltar' : 'Avançar'} ${seconds} s${seconds === 1 ? (direction < 0 ? ' ( ← )' : ' ( → )') : ''}`}
       onClick={() => skip(direction * seconds)}
     >
       <Icon name={direction < 0 ? 'skipBack' : 'skipForward'} size={14} />
@@ -58,7 +58,7 @@ export function PlaybackControls() {
         className={styles.play}
         disabled={disabled}
         aria-label={playing ? 'Pausar' : 'Reproduzir'}
-        title={playing ? 'Pausar' : 'Reproduzir'}
+        title={`${playing ? 'Pausar' : 'Reproduzir'} (Espaço)`}
         onClick={togglePlay}
       >
         <Icon name={playing ? 'pause' : 'play'} size={16} />
@@ -86,8 +86,11 @@ export function PlaybackControls() {
         className={styles.speed}
         value={speed}
         disabled={disabled}
-        title="Velocidade de reprodução"
-        onChange={(e) => setSpeed(Number(e.target.value))}
+        title="Velocidade de reprodução ( ↑ ↓ )"
+        onChange={(e) => {
+          setSpeed(Number(e.target.value));
+          e.currentTarget.blur(); // devolve o teclado aos atalhos (Espaço, setas)
+        }}
       >
         {PLAYBACK_SPEEDS.map((v) => (
           <option key={v} value={v}>

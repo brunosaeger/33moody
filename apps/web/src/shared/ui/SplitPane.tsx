@@ -68,8 +68,15 @@ export function SplitPane({
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'ArrowLeft') onSideWidthChange(clamp(sideWidth + KEYBOARD_STEP_PX));
-    if (e.key === 'ArrowRight') onSideWidthChange(clamp(sideWidth - KEYBOARD_STEP_PX));
+    // preventDefault: a seta já foi usada aqui (atalhos globais, como os da timeline, ignoram).
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      onSideWidthChange(clamp(sideWidth + KEYBOARD_STEP_PX));
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      onSideWidthChange(clamp(sideWidth - KEYBOARD_STEP_PX));
+    }
   };
 
   const width = dragWidth ?? sideWidth;

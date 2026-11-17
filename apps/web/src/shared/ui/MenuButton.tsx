@@ -3,7 +3,8 @@ import { Menu, type MenuItem, type MenuProps } from './Menu';
 import { Icon, type IconName } from './icons';
 import styles from './MenuButton.module.css';
 
-export interface MenuButtonProps extends Pick<MenuProps, 'title' | 'emptyText' | 'align'> {
+export interface MenuButtonProps
+  extends Pick<MenuProps, 'title' | 'emptyText' | 'align' | 'searchable' | 'searchPlaceholder'> {
   /** Texto acessível (leitor de tela e tooltip). */
   label: string;
   icon: IconName;

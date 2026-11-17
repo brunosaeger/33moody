@@ -42,9 +42,9 @@ function laserPoseAtScan(
 }
 
 /**
- * LaserScan como nuvem de pontos. Os pontos ficam no frame do laser e o
- * objeto é colocado no mundo na pose da medição; os dois só mudam quando
- * chega uma leitura nova.
+ * LaserScan como nuvem de pontos. Os pontos ficam no frame do laser
+ * (refeitos só quando chega uma leitura nova) e o objeto é colocado no
+ * mundo na pose da medição (conferida a cada quadro).
  */
 export function ScanLayer({ profile }: LayerProps) {
   const message = useTopicRef<LaserScan>(profile.topics.scan);
@@ -64,22 +64,20 @@ export function ScanLayer({ profile }: LayerProps) {
     const obj = points.current;
     const scan = message.current?.message;
     if (!obj) return;
-    if (!scan) {
-      obj.visible = false;
-      return;
-    }
-    if (scan === lastScan.current) return;
 
-    const pose = laserPoseAtScan(scan, tree, profile, latestPose.current);
-    // Sem pose ainda: tenta de novo no próximo quadro, com a mesma leitura.
-    if (!pose) {
-      obj.visible = false;
-      return;
-    }
-    lastScan.current = scan;
-    obj.visible = true;
+    // A POSE é recalculada todo quadro (uma consulta à árvore): ela depende
+    // só do scan e da árvore de TF DO INSTANTE ATUAL, nunca de por onde o
+    // cursor passou antes. Assim, avançar rápido até t e pular direto para
+    // t desenham igual.
+    const pose = scan ? laserPoseAtScan(scan, tree, profile, latestPose.current) : undefined;
+    obj.visible = pose !== undefined;
+    if (!scan || !pose) return;
     obj.position.set(pose.t[0], pose.t[1], pose.t[2]);
     obj.quaternion.set(pose.q[0], pose.q[1], pose.q[2], pose.q[3]);
+
+    // Os PONTOS (no frame do laser) só mudam quando chega uma leitura nova.
+    if (scan === lastScan.current) return;
+    lastScan.current = scan;
 
     const attr = geometry.getAttribute('position') as BufferAttribute;
     const out = attr.array as Float32Array;

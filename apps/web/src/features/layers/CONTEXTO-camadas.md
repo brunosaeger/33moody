@@ -18,6 +18,14 @@
 | `velocity/` | Setas: comandada (`cmd_vel`, âmbar; aceita `Twist` ou `TwistStamped`) × medida (odom, ciano), 1,5 m por m/s |
 | `tf/` | Com `/tf`: **todos os frames da árvore**, com nome só na "espinha" (`map`, `odom`, `base_footprint`) e em `base_*`/laser logo abaixo; o resto só com eixos. Sem `/tf` (demo): `map`, `base_link` e `laser` derivados da pose. Desligada por padrão |
 
+## Regra do replay: a tela é função do INSTANTE, não do caminho
+
+Tudo o que uma camada mostra no replay tem que depender só do cursor atual (e da fonte), nunca de por onde o cursor passou antes. Assim, avançar rápido segurando a seta até t e pular direto para t desenham **exatamente** igual. Validado em 2026-11-17: valores dos componentes iguais ao `rosbag2_py` e **0 pixels diferentes** no 3D, em três paradas, inclusive a 8×.
+- Cache só por identidade de dado (ex.: o `MapLayer` reconstrói a textura quando o `grid.data` muda; o `ScanLayer` refaz os pontos quando chega outro scan).
+- Nada derivado da árvore de TF fica "congelado": o `ScanLayer` recalcula a pose do laser **todo quadro**. Antes ela só era calculada na chegada do scan e podia ficar com a árvore de um instante anterior.
+- A única memória permitida é **visual e passageira**: a suavização da pose do robô, que converge em ~0,3 s.
+- Mensagens decodificadas são compartilhadas pelo cache da fonte: **nunca modificar** um objeto de mensagem.
+
 ## Armadilhas
 
 - **Mapa preto:** `Color` do three é linear; os bytes de uma textura sRGB precisam de `getRGB(srgb, SRGBColorSpace)`. Use também `toneMapped={false}` para a cor sair exata.
