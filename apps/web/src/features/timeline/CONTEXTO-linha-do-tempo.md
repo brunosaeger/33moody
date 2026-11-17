@@ -11,7 +11,10 @@ Só aparece com robô conectado (`Timeline.tsx`; o `TimelineContent` monta o `us
 - `rangeInput.ts`: `validateRange(data, início, fim, bounds)` (máximo de 24 h; corta a faixa nos limites onde há dado). `DataBounds`: gravação = início e fim do arquivo; ao vivo = até "agora".
 - `useDataBounds.ts`: os limites da fonte atual.
 - **Gravação** (`isRecording`): a sessão abre direto em replay no arquivo inteiro; o `RangePicker` sugere o arquivo inteiro; no lugar de "Voltar ao vivo" aparece o selo GRAVAÇÃO.
-- `TimelineStatus.tsx`: relógio (`ClockReadout`) e botão de voltar ao vivo.
+- `TimelineStatus.tsx`: relógio (`ClockReadout`; **no replay com milissegundos**, `formatClockMs`) e botão de voltar ao vivo / selo GRAVAÇÃO.
+- `MessageStepper.tsx`: `⏮ [tópico] ⏭` ao lado do relógio, só no replay e se a fonte tem `neighborMessageTime`. Pausa e leva o cursor ao instante EXATO da mensagem anterior/seguinte do tópico (padrão: o scan do perfil).
+- Campos de hora do `RangePicker` com `step=0.001` (aceitam milissegundos); `parseLocalDateTime` lê `HH:MM:SS.mmm`.
+- **Armadilha de precisão:** o relógio mostra ms truncados; uma mensagem gravada em 42.621850 ainda não vale num cursor digitado em 42.621. Para cair exatamente numa mensagem, usar o passo de mensagem (validado contra o `rosbag2_py` em 2026-11-17).
 - Formatação de datas e horas: `shared/lib/timeFormat.ts`.
 - Fonte sem histórico (`supportsReplay` falso, ex.: Foxglove ao vivo): sem controles de play nem seletor de faixa, só a régua ao vivo e um aviso.
 

@@ -70,7 +70,7 @@ export function RangePicker() {
       <input
         className={styles.time}
         type="time"
-        step={1}
+        step={0.001}
         value={start}
         aria-label="Início da faixa"
         onChange={(e) => setStart(e.target.value)}
@@ -79,7 +79,7 @@ export function RangePicker() {
       <input
         className={styles.time}
         type="time"
-        step={1}
+        step={0.001}
         value={end}
         aria-label="Fim da faixa"
         onChange={(e) => setEnd(e.target.value)}

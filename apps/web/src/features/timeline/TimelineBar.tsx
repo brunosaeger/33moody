@@ -3,7 +3,7 @@ import { useClock } from '@/data';
 import { useElementWidth } from '@/shared/hooks/useElementWidth';
 import { useNow } from '@/shared/hooks/useNow';
 import { computeTicks, liveWindow, posToTime, replayWindow, timeToPos } from './ruler';
-import { formatClock } from '@/shared/lib/timeFormat';
+import { formatClockMs } from '@/shared/lib/timeFormat';
 import styles from './TimelineBar.module.css';
 
 const pct = (pos: number) => `${(pos * 100).toFixed(3)}%`;
@@ -85,7 +85,7 @@ export function TimelineBar() {
             data-flip={timeToPos(cursorMs, view) > 0.85 || undefined}
             style={{ left: pct(timeToPos(cursorMs, view)) }}
           >
-            <span className={styles.cursorLabel}>{formatClock(cursorMs)}</span>
+            <span className={styles.cursorLabel}>{formatClockMs(cursorMs)}</span>
             <svg className={styles.cursorArrow} viewBox="0 0 16 12" aria-hidden="true">
               <path d="M1 1h14L8 11z" />
             </svg>

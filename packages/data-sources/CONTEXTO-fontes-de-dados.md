@@ -8,6 +8,7 @@ TypeScript puro, **sem React**. Define o contrato `DataSource` e as fontes de da
 - `messageAt?(topic, timeMs)`: **opcional**, só para fontes com histórico. Semântica atual: a **última mensagem publicada até `timeMs`** (degrau), ou `undefined` (inclusive para o futuro). Use `supportsReplay(source)` para checar.
 - `onStatusChange?(listener)`: **opcional**; fontes que podem cair avisam `{ state: 'closed', reason }`. Não é emitido quando a própria UI chama `stop()`.
 - `messagesInRange?(topic, startMs, endMs)`: **opcional**; todas as mensagens do intervalo, em ordem. O TF do replay precisa disso (cada /tf traz só parte da árvore).
+- `neighborMessageTime?(topic, t, ±1)`: **opcional**; instante da mensagem vizinha (a primeira DEPOIS de t, ou a ANTERIOR à que vale em t). Base do passo "mensagem por mensagem". MCAP: busca binária na trilha; demo: múltiplos do período.
 - `recordedRange?()`: **opcional**; fontes GRAVADAS (arquivo) informam o intervalo existente. `isRecording(source)` = tem `recordedRange` e `messageAt`; a sessão abre essas fontes direto em replay.
 - `MessageEvent.timeMs`: ms desde a época Unix **no relógio da timeline**. Fontes ao vivo usam o instante de chegada ao navegador (o `header.stamp` pode ser tempo de simulação, que começa em 0); fontes gravadas usam o instante gravado. `message` é o objeto JS com os **mesmos nomes de campo da msg ROS 2** (int64 vira `bigint`).
 

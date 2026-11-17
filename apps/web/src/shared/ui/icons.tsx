@@ -10,6 +10,9 @@ const paths = {
   skipBack: 'M8 4L4 8l4 4M13 4L9 8l4 4',
   skipForward: 'M8 4l4 4-4 4M3 4l4 4-4 4',
   calendar: 'M2.5 4h11v9.5h-11zM2.5 6.5h11M5.5 2.5v3M10.5 2.5v3',
+  /** Uma mensagem para trás / para frente (seta + barra, como "quadro a quadro"). */
+  stepBack: 'M10.5 4L6.5 8l4 4M4 4v8',
+  stepForward: 'M5.5 4l4 4-4 4M12 4v8',
 } as const;
 
 export type IconName = keyof typeof paths;

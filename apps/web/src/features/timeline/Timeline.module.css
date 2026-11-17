@@ -18,6 +18,9 @@
 
 .left {
   justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .right {

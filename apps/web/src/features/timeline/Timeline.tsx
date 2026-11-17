@@ -1,5 +1,6 @@
 import { supportsReplay } from '@moody/data-sources';
 import { useClockDriver, useSession } from '@/data';
+import { MessageStepper } from './MessageStepper';
 import { PlaybackControls } from './PlaybackControls';
 import { RangePicker } from './RangePicker';
 import { TimelineBar } from './TimelineBar';
@@ -10,7 +11,7 @@ import styles from './Timeline.module.css';
  * Timeline (rodapé da tela). Só existe com um robô conectado.
  *
  *   [ barra: régua + faixa + cursor                                ]
- *   [ relógio ]       [ « skips  ⏯  skips » · x · velocidade ]   [ ao vivo ]
+ *   [ relógio ◂tópico▸ ] [ « skips  ⏯  skips » · x · velocidade ]   [ ao vivo ]
  *                     [ 📅 data  início → fim  Ver replay ]
  */
 export function Timeline() {
@@ -31,6 +32,7 @@ function TimelineContent() {
       <div className={styles.controlsRow}>
         <div className={styles.left}>
           <ClockReadout />
+          <MessageStepper />
         </div>
         {canReplay ? <PlaybackControls /> : <span />}
         <div className={styles.right}>

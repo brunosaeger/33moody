@@ -11,6 +11,14 @@ export function formatClock(ms: number): string {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+/**
+ * 14:05:09.621 — com milissegundos. Para o replay, onde meio segundo
+ * muda o diagnóstico (um comando novo, um scan novo).
+ */
+export function formatClockMs(ms: number): string {
+  return `${formatClock(ms)}.${pad(new Date(ms).getMilliseconds(), 3)}`;
+}
+
 /** 14:05 */
 export function formatHourMinute(ms: number): string {
   const d = new Date(ms);
@@ -29,14 +37,20 @@ export function toDateInput(ms: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/** Valor para <input type="time" step="1">: 14:05:09 */
+/**
+ * Valor para <input type="time" step="0.001">: 14:05:09, ou 14:05:09.621
+ * quando há milissegundos.
+ */
 export function toTimeInput(ms: number): string {
-  return formatClock(ms);
+  return new Date(ms).getMilliseconds() === 0 ? formatClock(ms) : formatClockMs(ms);
 }
 
-/** Data ("2026-11-10") + hora ("14:05" ou "14:05:09") locais -> epoch ms, ou null se inválido. */
+/**
+ * Data ("2026-11-10") + hora ("14:05", "14:05:09" ou "14:05:09.621") locais
+ * -> epoch ms, ou null se inválido.
+ */
 export function parseLocalDateTime(date: string, time: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(:\d{2})?$/.test(time)) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?$/.test(time)) return null;
   const ms = new Date(`${date}T${time.length === 5 ? `${time}:00` : time}`).getTime();
   return Number.isNaN(ms) ? null : ms;
 }

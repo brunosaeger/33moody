@@ -91,6 +91,16 @@ export interface DataSource {
   messagesInRange?(topic: string, startMs: number, endMs: number): MessageEvent[];
 
   /**
+   * REPLAY (opcional): instante de uma mensagem VIZINHA do tópico, para
+   * andar mensagem por mensagem:
+   * - `1`: a primeira mensagem DEPOIS de `timeMs`;
+   * - `-1`: a mensagem ANTERIOR à que está valendo em `timeMs`
+   *   (a que vale é a última até `timeMs`, como em `messageAt`).
+   * undefined se não houver (início/fim dos dados).
+   */
+  neighborMessageTime?(topic: string, timeMs: number, direction: 1 | -1): number | undefined;
+
+  /**
    * (Opcional) Fontes GRAVADAS (arquivo): o intervalo de tempo que existe.
    * Elas não têm "ao vivo": a timeline abre direto em replay, nestes limites.
    */

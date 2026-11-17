@@ -165,6 +165,14 @@ export class McapSource implements DataSource {
     return out;
   }
 
+  neighborMessageTime(topic: string, timeMs: number, direction: 1 | -1): number | undefined {
+    const track = this.tracks.get(topic);
+    if (!track) return undefined;
+    // i = mensagem que vale em timeMs; a vizinha é a próxima ou a anterior a ela.
+    const j = track.lastIndexAtOrBefore(timeMs) + direction;
+    return j >= 0 && j < track.count ? track.timeAt(j) : undefined;
+  }
+
   /** Mensagens e bytes por tópico, do maior para o menor. */
   stats(): TrackStats[] {
     return [...this.tracks.values()]

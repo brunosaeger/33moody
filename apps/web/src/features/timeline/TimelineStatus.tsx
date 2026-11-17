@@ -1,7 +1,7 @@
 import { isRecording } from '@moody/data-sources';
 import { useClock, useSession } from '@/data';
 import { useNow } from '@/shared/hooks/useNow';
-import { formatClock, formatDateBR, formatDuration } from '@/shared/lib/timeFormat';
+import { formatClock, formatClockMs, formatDateBR, formatDuration } from '@/shared/lib/timeFormat';
 import styles from './TimelineStatus.module.css';
 
 /** Horário que a tela está mostrando: o "agora" ao vivo, ou o cursor no replay. */
@@ -15,7 +15,8 @@ export function ClockReadout() {
 
   return (
     <div className={styles.readout}>
-      <span className={styles.time}>{formatClock(shown)}</span>
+      {/* No replay, com milissegundos: meio segundo muda o que está na tela. */}
+      <span className={styles.time}>{mode === 'replay' ? formatClockMs(shown) : formatClock(shown)}</span>
       <span className={styles.sub}>
         {formatDateBR(shown)}
         {mode === 'replay' && range && (

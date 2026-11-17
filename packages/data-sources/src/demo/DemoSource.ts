@@ -99,6 +99,15 @@ export class DemoSource implements DataSource {
     return { topic, schemaName: def.schemaName, timeMs: stamp, message: def.build(state, stamp, noise) };
   }
 
+  neighborMessageTime(topic: string, timeMs: number, direction: 1 | -1): number | undefined {
+    const def = this.byName.get(topic);
+    if (!def) return undefined;
+    // O demo publica em instantes múltiplos do período (ver messageAt).
+    const period = 1000 / def.rateHz;
+    const t = (Math.floor(timeMs / period) + direction) * period;
+    return t > Date.now() ? undefined : t;
+  }
+
   private tick(): void {
     const now = Date.now();
     const state = demoStateAt((now - this.epochMs) / 1000);
