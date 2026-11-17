@@ -13,7 +13,7 @@
 |---|---|
 | `map/` | OccupancyGrid como plano texturizado em z 0.002. Só reconstrói a textura quando `grid.data` muda. `occupancyTexture.ts`: livre = `panelRaisedHi`, ocupado `#c9d1dc`, desconhecido transparente, `NearestFilter` |
 | `robot/` | `GenericAmrModel`: AMR provisório de primitivas (corpo `#5b6779`, para-choque e seta âmbar, rodas, LiDAR ciano). Rodas e LiDAR proporcionais às dimensões do perfil (`wheelRadius`). Vai ser trocado pelo URDF |
-| `scan/` | LaserScan como pontos (buffer de 4096) dentro do `FollowRobot`. A posição do laser vem do **TF** (`baseFrame → header.frame_id` do scan); sem TF, do `laserOffset` do perfil |
+| `scan/` | LaserScan como pontos (buffer de 4096) **fixados no mundo** com a pose do laser no instante da medição: TF `cena ← header.frame_id` no `header.stamp`. Sem TF (demo), pose mais recente + `laserOffset`. Só muda quando chega um scan novo (como o RViz com decay 0) |
 | `trail/` | Rastro âmbar. Ao vivo: **amostra a pose da cena** (TF ou odometria) a cada 150 ms, janela de 3 min, passo de 2 cm, e **recomeça em saltos > 1 m** (troca de referência ou relocalização). Replay: amostra `messageAt` da odometria do início da faixa até o cursor (até 800 amostras) |
 | `velocity/` | Setas: comandada (`cmd_vel`, âmbar; aceita `Twist` ou `TwistStamped`) × medida (odom, ciano), 1,5 m por m/s |
 | `tf/` | Com `/tf`: **todos os frames da árvore**, com nome só na "espinha" (`map`, `odom`, `base_footprint`) e em `base_*`/laser logo abaixo; o resto só com eixos. Sem `/tf` (demo): `map`, `base_link` e `laser` derivados da pose. Desligada por padrão |

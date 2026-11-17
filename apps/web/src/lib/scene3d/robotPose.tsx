@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, type ReactNode, type RefObject } from 'react';
+import { createContext, useContext, useMemo, useRef, type ReactNode, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { RobotProfile } from '@/config/robotProfiles';
@@ -24,7 +24,14 @@ export interface Pose2D {
 const SMOOTHING_PER_S = 14;
 const SNAP_DISTANCE_M = 1.0;
 
-const RobotPoseContext = createContext<RefObject<Pose2D | null> | null>(null);
+interface RobotPoseRefs {
+  /** Pose suavizada: para desenhar o robô e o que anda junto com ele. */
+  smoothed: RefObject<Pose2D | null>;
+  /** Pose mais recente, sem suavização: para posicionar medições no mundo. */
+  latest: RefObject<Pose2D | null>;
+}
+
+const RobotPoseContext = createContext<RobotPoseRefs | null>(null);
 
 /** Diferença angular no intervalo (-π, π]. */
 function angleDelta(from: number, to: number): number {
@@ -46,6 +53,8 @@ export function RobotPoseProvider({ profile, children }: { profile: RobotProfile
   const odom = useTopicRef<Odometry>(profile.topics.odom);
   const tree = useTfTree();
   const pose = useRef<Pose2D | null>(null);
+  const latest = useRef<Pose2D | null>(null);
+  const refs = useMemo(() => ({ smoothed: pose, latest }), []);
 
   // Prioridade -1: roda ANTES dos componentes que leem a pose no mesmo frame.
   useFrame((_, dt) => {
@@ -56,6 +65,7 @@ export function RobotPoseProvider({ profile, children }: { profile: RobotProfile
       const p = odom.current?.message.pose.pose;
       if (p) target = { x: p.position.x, y: p.position.y, yaw: quaternionToYaw(p.orientation) };
     }
+    latest.current = target;
     if (!target) {
       pose.current = null;
       return;
@@ -72,14 +82,26 @@ export function RobotPoseProvider({ profile, children }: { profile: RobotProfile
     cur.yaw += angleDelta(cur.yaw, target.yaw) * k;
   }, -1);
 
-  return <RobotPoseContext.Provider value={pose}>{children}</RobotPoseContext.Provider>;
+  return <RobotPoseContext.Provider value={refs}>{children}</RobotPoseContext.Provider>;
+}
+
+function usePoseRefs(): RobotPoseRefs {
+  const ctx = useContext(RobotPoseContext);
+  if (!ctx) throw new Error('useRobotPose precisa estar dentro de <RobotPoseProvider>');
+  return ctx;
 }
 
 /** Ref com a pose suavizada atual (null = sem dado). Ler dentro de `useFrame`. */
 export function useRobotPose(): RefObject<Pose2D | null> {
-  const ctx = useContext(RobotPoseContext);
-  if (!ctx) throw new Error('useRobotPose precisa estar dentro de <RobotPoseProvider>');
-  return ctx;
+  return usePoseRefs().smoothed;
+}
+
+/**
+ * Ref com a pose mais recente, SEM suavização. Para fixar no mundo algo
+ * medido agora (ex.: um scan sem TF); a suavizada fica alguns cm atrás.
+ */
+export function useLatestRobotPose(): RefObject<Pose2D | null> {
+  return usePoseRefs().latest;
 }
 
 /**

@@ -62,3 +62,21 @@ export function yawOf(tf: Transform): number {
   const [x, y, z, w] = tf.q;
   return Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
 }
+
+/**
+ * Transformação "entre" a e b: k = 0 → a, k = 1 → b.
+ * Translação linear; rotação por nlerp (interpolação normalizada), que
+ * para os ângulos pequenos entre duas amostras de TF equivale ao slerp.
+ */
+export function interpolate(a: Transform, b: Transform, k: number): Transform {
+  const lerp = (x: number, y: number) => x + (y - x) * k;
+  // q e -q são a mesma rotação: usa o sinal que dá o caminho mais curto.
+  const dot = a.q[0] * b.q[0] + a.q[1] * b.q[1] + a.q[2] * b.q[2] + a.q[3] * b.q[3];
+  const s = dot < 0 ? -1 : 1;
+  const q = [0, 1, 2, 3].map((i) => lerp(a.q[i]!, s * b.q[i]!)) as [number, number, number, number];
+  const n = Math.hypot(...q) || 1;
+  return {
+    t: [lerp(a.t[0], b.t[0]), lerp(a.t[1], b.t[1]), lerp(a.t[2], b.t[2])],
+    q: [q[0] / n, q[1] / n, q[2] / n, q[3] / n],
+  };
+}

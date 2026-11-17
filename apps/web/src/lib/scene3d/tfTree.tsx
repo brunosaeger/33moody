@@ -23,7 +23,7 @@ export function TfTreeProvider({ children }: { children: ReactNode }) {
     if (!source) return;
     const stops = [TF_TOPICS.static, TF_TOPICS.dynamic].map((topic) =>
       followTopic(source, topic, mode, (event) => {
-        if (event) tree.update(event.message as TFMessage);
+        if (event) tree.update(event.message as TFMessage, topic === TF_TOPICS.static);
       }),
     );
     return () => stops.forEach((stop) => stop());
