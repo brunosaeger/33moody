@@ -1,10 +1,6 @@
 import { colors } from '@moody/theme';
 import type { RobotProfile } from '@/config/robotProfiles';
 
-const WHEEL_RADIUS = 0.08;
-const WHEEL_WIDTH = 0.05;
-const LIDAR_RADIUS = 0.06;
-const LIDAR_HEIGHT = 0.06;
 /** Cinza-azulado claro o bastante para destacar sobre o chão escuro do mapa. */
 const BODY_COLOR = '#5b6779';
 
@@ -14,8 +10,12 @@ const BODY_COLOR = '#5b6779';
  * Será trocado pelo URDF do robô alvo; por isso recebe só as dimensões.
  */
 export function GenericAmrModel({ body }: { body: RobotProfile['body'] }) {
-  const { length, width, height } = body;
-  const bodyZ = WHEEL_RADIUS + height / 2 - 0.03; // corpo um pouco "afundado" entre as rodas
+  const { length, width, height, wheelRadius } = body;
+  // Rodas e LiDAR proporcionais ao robô (um TurtleBot é ~1/2 do demo).
+  const wheelWidth = Math.max(0.018, width * 0.11);
+  const lidarRadius = Math.min(0.06, width * 0.16);
+  const lidarHeight = lidarRadius;
+  const bodyZ = wheelRadius + height / 2 - wheelRadius * 0.4; // corpo um pouco "afundado" entre as rodas
   const topZ = bodyZ + height / 2;
 
   return (
@@ -40,15 +40,15 @@ export function GenericAmrModel({ body }: { body: RobotProfile['body'] }) {
 
       {/* Rodas (esquerda e direita) */}
       {[1, -1].map((side) => (
-        <mesh key={side} position={[0, side * (width / 2 + WHEEL_WIDTH / 2), WHEEL_RADIUS]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[WHEEL_RADIUS, WHEEL_RADIUS, WHEEL_WIDTH, 24]} />
+        <mesh key={side} position={[0, side * (width / 2 + wheelWidth / 2), wheelRadius]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[wheelRadius, wheelRadius, wheelWidth, 24]} />
           <meshStandardMaterial color="#0b0d10" roughness={0.9} />
         </mesh>
       ))}
 
       {/* LiDAR no topo */}
-      <mesh position={[0, 0, topZ + LIDAR_HEIGHT / 2]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[LIDAR_RADIUS, LIDAR_RADIUS, LIDAR_HEIGHT, 24]} />
+      <mesh position={[0, 0, topZ + lidarHeight / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[lidarRadius, lidarRadius, lidarHeight, 24]} />
         <meshStandardMaterial color={colors.accentCyan} emissive={colors.accentCyan} emissiveIntensity={0.35} />
       </mesh>
     </group>

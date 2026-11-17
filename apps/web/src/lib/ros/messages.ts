@@ -21,10 +21,46 @@ export interface RosPose {
   orientation: RosQuaternion;
 }
 
+/** builtin_interfaces/msg/Time (ROS 2) */
+export interface RosTime {
+  sec: number;
+  nanosec: number;
+}
+
+/** std_msgs/msg/Header */
+export interface RosHeader {
+  stamp: RosTime;
+  frame_id: string;
+}
+
 /** geometry_msgs/msg/Twist */
 export interface Twist {
   linear: RosVector3;
   angular: RosVector3;
+}
+
+/** geometry_msgs/msg/TwistStamped (o Nav2 pode publicar o cmd_vel assim) */
+export interface TwistStamped {
+  header: RosHeader;
+  twist: Twist;
+}
+
+/** Aceita Twist ou TwistStamped e devolve o Twist. */
+export function twistOf(msg: Twist | TwistStamped | undefined): Twist | undefined {
+  if (!msg) return undefined;
+  return 'twist' in msg ? msg.twist : msg;
+}
+
+/** geometry_msgs/msg/TransformStamped */
+export interface TransformStamped {
+  header: RosHeader;
+  child_frame_id: string;
+  transform: { translation: RosVector3; rotation: RosQuaternion };
+}
+
+/** tf2_msgs/msg/TFMessage (tópicos /tf e /tf_static) */
+export interface TFMessage {
+  transforms: TransformStamped[];
 }
 
 /** nav_msgs/msg/Odometry */
@@ -35,6 +71,7 @@ export interface Odometry {
 
 /** sensor_msgs/msg/LaserScan */
 export interface LaserScan {
+  header: RosHeader;
   angle_min: number;
   angle_increment: number;
   range_min: number;

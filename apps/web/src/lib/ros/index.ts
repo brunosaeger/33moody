@@ -2,6 +2,12 @@ export { flattenMessage, formatNumber, type FieldKind, type FieldRow } from './f
 export { shortSchemaName } from './schemaName';
 export {
   quaternionToYaw,
+  twistOf,
+  type RosHeader,
+  type RosTime,
+  type TFMessage,
+  type TransformStamped,
+  type TwistStamped,
   type LaserScan,
   type OccupancyGrid,
   type Odometry,

@@ -11,10 +11,10 @@ Só aparece com robô conectado (`Timeline.tsx`; o `TimelineContent` monta o `us
 - `rangeInput.ts`: `validateRange` (máximo de 24 h; fim cortado em "agora").
 - `TimelineStatus.tsx`: relógio (`ClockReadout`) e botão de voltar ao vivo.
 - Formatação de datas e horas: `shared/lib/timeFormat.ts`.
+- Fonte sem histórico (`supportsReplay` falso, ex.: Foxglove ao vivo): sem controles de play nem seletor de faixa, só a régua ao vivo e um aviso.
 
 ## Pendências
 
-- Esconder ou bloquear o replay quando a fonte não tem histórico (`supportsReplay`), necessário com a fonte Foxglove ao vivo.
 - Mostrar só a faixa onde **existe** dado gravado (vem com MCAP/historian).
 - Marcadores de evento (erros, paradas) na régua.
 - Faixa que atravessa a meia-noite.

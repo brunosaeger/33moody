@@ -12,11 +12,11 @@
 | Camada | Detalhes |
 |---|---|
 | `map/` | OccupancyGrid como plano texturizado em z 0.002. Só reconstrói a textura quando `grid.data` muda. `occupancyTexture.ts`: livre = `panelRaisedHi`, ocupado `#c9d1dc`, desconhecido transparente, `NearestFilter` |
-| `robot/` | `GenericAmrModel`: AMR provisório de primitivas (corpo `#5b6779`, para-choque e seta âmbar, rodas, LiDAR ciano), pelas dimensões do perfil. Vai ser trocado pelo URDF |
-| `scan/` | LaserScan como pontos (buffer de 4096), no offset do laser, dentro do `FollowRobot` |
-| `trail/` | Rastro âmbar. Ao vivo: janela de 3 min, passo de 2 cm. Replay: amostra `messageAt` do início da faixa até o cursor (até 800 amostras, refresh a cada 150 ms) |
-| `velocity/` | Setas: comandada (`cmd_vel`, âmbar) × medida (odom, ciano), 1,5 m por m/s |
-| `tf/` | Eixos de `map`, `base_link` e `laser`. Hoje **derivados da pose**; com `/tf` real vão vir da árvore. Desligada por padrão |
+| `robot/` | `GenericAmrModel`: AMR provisório de primitivas (corpo `#5b6779`, para-choque e seta âmbar, rodas, LiDAR ciano). Rodas e LiDAR proporcionais às dimensões do perfil (`wheelRadius`). Vai ser trocado pelo URDF |
+| `scan/` | LaserScan como pontos (buffer de 4096) dentro do `FollowRobot`. A posição do laser vem do **TF** (`baseFrame → header.frame_id` do scan); sem TF, do `laserOffset` do perfil |
+| `trail/` | Rastro âmbar. Ao vivo: **amostra a pose da cena** (TF ou odometria) a cada 150 ms, janela de 3 min, passo de 2 cm, e **recomeça em saltos > 1 m** (troca de referência ou relocalização). Replay: amostra `messageAt` da odometria do início da faixa até o cursor (até 800 amostras) |
+| `velocity/` | Setas: comandada (`cmd_vel`, âmbar; aceita `Twist` ou `TwistStamped`) × medida (odom, ciano), 1,5 m por m/s |
+| `tf/` | Com `/tf`: **todos os frames da árvore**, com nome só na "espinha" (`map`, `odom`, `base_footprint`) e em `base_*`/laser logo abaixo; o resto só com eixos. Sem `/tf` (demo): `map`, `base_link` e `laser` derivados da pose. Desligada por padrão |
 
 ## Armadilhas
 

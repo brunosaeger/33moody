@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { ArrowHelper, Color, Vector3 } from 'three';
 import { colors } from '@moody/theme';
 import { useTopicRef } from '@/data';
-import type { Odometry, Twist } from '@/lib/ros';
+import { twistOf, type Odometry, type Twist, type TwistStamped } from '@/lib/ros';
 import { FollowRobot } from '@/lib/scene3d';
 import type { LayerProps } from '../types';
 
@@ -31,8 +31,8 @@ function updateArrow(arrow: ArrowHelper, linear: { x: number; y: number } | unde
  * Se as setas divergem, o robô não está fazendo o que foi mandado.
  */
 export function VelocityLayer({ profile }: LayerProps) {
-  const cmd = useTopicRef<Twist>(profile.topics.cmdVel);
-  const odom = useTopicRef<Odometry>(profile.topics.pose);
+  const cmd = useTopicRef<Twist | TwistStamped>(profile.topics.cmdVel);
+  const odom = useTopicRef<Odometry>(profile.topics.odom);
 
   const arrows = useMemo(
     () => ({
@@ -43,7 +43,7 @@ export function VelocityLayer({ profile }: LayerProps) {
   );
 
   useFrame(() => {
-    updateArrow(arrows.commanded, cmd.current?.message.linear);
+    updateArrow(arrows.commanded, twistOf(cmd.current?.message)?.linear);
     updateArrow(arrows.measured, odom.current?.message.twist.twist.linear);
   });
 

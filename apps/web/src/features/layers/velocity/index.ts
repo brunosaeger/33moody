@@ -5,7 +5,7 @@ export const velocityLayer: LayerDefinition = {
   id: 'velocity',
   title: 'Velocidade',
   description: 'Seta âmbar = comandada (cmd_vel); seta ciano = medida (odometria).',
-  topics: (p) => [p.topics.cmdVel, p.topics.pose],
+  topics: (p) => [p.topics.cmdVel, p.topics.odom],
   defaultEnabled: true,
   Component: VelocityLayer,
 };

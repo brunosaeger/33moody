@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { supportsReplay, type MessageEvent } from '@moody/data-sources';
-import { followTopic, useClock, useSession } from '@/data';
+import { useClock, useSession } from '@/data';
 import type { Odometry } from '@/lib/ros';
+import type { Pose2D } from '@/lib/scene3d';
 
 export type TrailPoint = [x: number, y: number, z: number];
 
@@ -9,6 +10,12 @@ export type TrailPoint = [x: number, y: number, z: number];
 const LIVE_WINDOW_MS = 3 * 60 * 1000;
 /** Ao vivo: só registra um ponto novo se o robô andou pelo menos isto (m). */
 const MIN_STEP_M = 0.02;
+/**
+ * Ao vivo: um salto maior que isto entre amostras não é movimento, é
+ * troca de referência (ex.: o `map` apareceu, ou a localização corrigiu a
+ * pose). O rastro recomeça em vez de desenhar uma reta falsa.
+ */
+const JUMP_RESET_M = 1.0;
 /** Ritmo de atualização do desenho (o rastro não precisa de 60 fps). */
 const REFRESH_MS = 150;
 /** Replay: máximo de amostras entre o início da faixa e o cursor. */
@@ -24,11 +31,12 @@ function toPoint(event: MessageEvent | undefined): TrailPoint | null {
 
 /**
  * Pontos do rastro do robô.
- * - Ao vivo: acumula as poses recebidas nos últimos minutos.
+ * - Ao vivo: amostra a pose da CENA (que já vem da TF ou da odometria,
+ *   conforme o perfil) e guarda os últimos minutos.
  * - Replay: reconstrói o caminho do início da faixa até o cursor,
- *   amostrando a fonte (`messageAt`) em intervalos regulares.
+ *   amostrando a odometria da fonte (`messageAt`) em intervalos regulares.
  */
-export function useTrail(poseTopic: string): TrailPoint[] {
+export function useTrail(robotPose: RefObject<Pose2D | null>, poseTopic: string): TrailPoint[] {
   const source = useSession((s) => s.source);
   const mode = useClock((s) => s.mode);
   const [points, setPoints] = useState<TrailPoint[]>([]);
@@ -39,25 +47,20 @@ export function useTrail(poseTopic: string): TrailPoint[] {
     if (!source || mode !== 'live') return;
     const buffer: { t: number; p: TrailPoint }[] = [];
 
-    const stop = followTopic(source, poseTopic, 'live', (event) => {
-      const p = toPoint(event);
-      if (!p || !event) return;
-      const last = buffer[buffer.length - 1];
-      if (last && Math.hypot(p[0] - last.p[0], p[1] - last.p[1]) < MIN_STEP_M) return;
-      buffer.push({ t: event.timeMs, p });
-    });
-
     const timer = setInterval(() => {
-      const cutoff = Date.now() - LIVE_WINDOW_MS;
+      const now = Date.now();
+      const pose = robotPose.current;
+      const last = buffer[buffer.length - 1];
+      const step = pose && last ? Math.hypot(pose.x - last.p[0], pose.y - last.p[1]) : Infinity;
+      if (pose && step > JUMP_RESET_M) buffer.length = 0;
+      if (pose && step >= MIN_STEP_M) buffer.push({ t: now, p: [pose.x, pose.y, TRAIL_Z] });
+      const cutoff = now - LIVE_WINDOW_MS;
       while (buffer.length > 0 && buffer[0]!.t < cutoff) buffer.shift();
       setPoints(buffer.map((b) => b.p));
     }, REFRESH_MS);
 
-    return () => {
-      stop();
-      clearInterval(timer);
-    };
-  }, [source, mode, poseTopic]);
+    return () => clearInterval(timer);
+  }, [source, mode, robotPose]);
 
   // REPLAY
   useEffect(() => {

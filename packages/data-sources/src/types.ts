@@ -22,8 +22,13 @@ export interface MessageEvent<T = unknown> {
   topic: string;
   schemaName: string;
   /**
-   * Instante da mensagem em milissegundos desde a época Unix.
-   * Vem do `header.stamp` quando a mensagem tem header; senão, do instante de recebimento.
+   * Instante da mensagem em milissegundos desde a época Unix, no relógio
+   * da TIMELINE.
+   * - Fontes ao vivo: o instante em que a mensagem chegou ao navegador.
+   *   NÃO usamos o `header.stamp`, porque o relógio do robô pode ser o da
+   *   simulação (começa em 0) ou estar fora de sincronia com o computador.
+   *   O stamp original continua dentro de `message.header`.
+   * - Fontes gravadas (demo, MCAP, historian): o instante gravado.
    */
   timeMs: number;
   /** A mensagem decodificada, como objeto JS com os mesmos campos da msg ROS. */
@@ -31,6 +36,15 @@ export interface MessageEvent<T = unknown> {
 }
 
 export type MessageListener = (event: MessageEvent) => void;
+
+/**
+ * Estado da conexão de uma fonte, depois do `start()`.
+ * - `connected`: recebendo dados normalmente.
+ * - `closed`: a conexão caiu sozinha (robô desligou, rede caiu…).
+ *   Não é emitido quando a própria UI chama `stop()`.
+ */
+export type SourceStatus = { state: 'connected' } | { state: 'closed'; reason: string };
+export type StatusListener = (status: SourceStatus) => void;
 export type TopicsListener = (topics: readonly TopicInfo[]) => void;
 
 export interface DataSource {
@@ -54,6 +68,12 @@ export interface DataSource {
 
   /** Passa a receber as mensagens de um tópico. */
   subscribe(topic: string, listener: MessageListener): Unsubscribe;
+
+  /**
+   * (Opcional) Avisa mudanças no estado da conexão. Fontes locais (demo)
+   * nunca caem e não implementam.
+   */
+  onStatusChange?(listener: StatusListener): Unsubscribe;
 
   /**
    * REPLAY (opcional): a última mensagem do tópico publicada até `timeMs`,

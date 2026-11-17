@@ -13,6 +13,7 @@
   display: flex;
   align-items: baseline;
   font-family: var(--font-brand);
+  font-weight: 700;
   font-size: 16px;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -20,6 +21,16 @@
 
 .brand33 {
   color: var(--brand);
+}
+
+.brandSeparator {
+  margin: 0 10px;
+  color: var(--panel-line);
+}
+
+.brandProduct {
+  font-weight: 400;
+  color: var(--text-muted);
 }
 
 .start {

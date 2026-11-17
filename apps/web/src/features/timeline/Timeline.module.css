@@ -28,3 +28,8 @@
   display: flex;
   justify-content: center;
 }
+
+.noReplay {
+  font-size: 12px;
+  color: var(--text-muted);
+}

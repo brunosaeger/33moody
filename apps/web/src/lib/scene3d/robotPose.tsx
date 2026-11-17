@@ -1,8 +1,12 @@
 import { createContext, useContext, useRef, type ReactNode, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
+import type { RobotProfile } from '@/config/robotProfiles';
 import { useTopicRef } from '@/data';
 import { quaternionToYaw, type Odometry } from '@/lib/ros';
+import { yawOf, type TfTree } from '@/lib/tf';
+import { sceneFrame } from './sceneFrame';
+import { useTfTree } from './tfTree';
 
 /** Pose do robô no plano (frame da cena = map). */
 export interface Pose2D {
@@ -27,23 +31,35 @@ function angleDelta(from: number, to: number): number {
   return Math.atan2(Math.sin(to - from), Math.cos(to - from));
 }
 
+/** Pose pela árvore de TF: frame da cena → frame do robô. */
+function poseFromTf(tree: TfTree, profile: RobotProfile, baseFrame: string): Pose2D | null {
+  const tf = tree.lookup(sceneFrame(tree, profile), baseFrame);
+  return tf ? { x: tf.t[0], y: tf.t[1], yaw: yawOf(tf) } : null;
+}
+
 /**
  * Fornece a pose suavizada do robô para tudo dentro da cena.
- * Lê o tópico de pose pelo relógio (ao vivo ou replay) e atualiza a cada frame.
+ * A pose vem da odometria ou da árvore de TF, conforme o perfil do robô,
+ * e é atualizada a cada frame (ao vivo ou replay).
  */
-export function RobotPoseProvider({ topic, children }: { topic: string; children: ReactNode }) {
-  const message = useTopicRef<Odometry>(topic);
+export function RobotPoseProvider({ profile, children }: { profile: RobotProfile; children: ReactNode }) {
+  const odom = useTopicRef<Odometry>(profile.topics.odom);
+  const tree = useTfTree();
   const pose = useRef<Pose2D | null>(null);
 
   // Prioridade -1: roda ANTES dos componentes que leem a pose no mesmo frame.
   useFrame((_, dt) => {
-    const msg = message.current?.message;
-    if (!msg) {
+    let target: Pose2D | null = null;
+    if (profile.pose.kind === 'tf') {
+      target = poseFromTf(tree, profile, profile.pose.baseFrame);
+    } else {
+      const p = odom.current?.message.pose.pose;
+      if (p) target = { x: p.position.x, y: p.position.y, yaw: quaternionToYaw(p.orientation) };
+    }
+    if (!target) {
       pose.current = null;
       return;
     }
-    const p = msg.pose.pose;
-    const target = { x: p.position.x, y: p.position.y, yaw: quaternionToYaw(p.orientation) };
     const cur = pose.current;
 
     if (!cur || Math.hypot(target.x - cur.x, target.y - cur.y) > SNAP_DISTANCE_M) {

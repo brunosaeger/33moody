@@ -1,8 +1,8 @@
 import { Canvas } from '@react-three/fiber';
 import { colors } from '@moody/theme';
-import { useRobotProfile } from '@/config/robotProfiles';
+import { useRobotProfile } from '@/data';
 import { EnabledLayers } from '@/features/layers';
-import { RobotPoseProvider } from '@/lib/scene3d';
+import { RobotPoseProvider, TfTreeProvider } from '@/lib/scene3d';
 import { CameraRig } from '../camera/CameraRig';
 import { Ground } from './Ground';
 
@@ -25,11 +25,13 @@ export function Scene() {
       <directionalLight position={[5, -6, 10]} intensity={1.4} />
       <hemisphereLight args={['#c9d6ff', colors.panelBase, 0.35]} />
 
-      <RobotPoseProvider topic={profile.topics.pose}>
-        <Ground />
-        <EnabledLayers />
-        <CameraRig />
-      </RobotPoseProvider>
+      <TfTreeProvider>
+        <RobotPoseProvider profile={profile}>
+          <Ground />
+          <EnabledLayers />
+          <CameraRig />
+        </RobotPoseProvider>
+      </TfTreeProvider>
     </Canvas>
   );
 }

@@ -44,9 +44,11 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 ## Estado atual (2026-11-17)
 
 - ✅ Fase 0: monorepo, tema, shell (header, menu lateral, componentes, timeline com replay sobre o demo).
-- ✅ Fase 1: viewport 3D (commit `876dfe2`, branch `feat/viewport-3d`; ainda sem push/merge no `main`).
-- ▶️ **Próximo, passo 1:** `FoxgloveSource` (ao vivo via `foxglove_bridge`), buffer de TF (`map → odom → base_footprint`), formulário de conexão real, perfil do TurtleBot3.
-- Depois: passo 2 = `ReplaySource` lendo MCAP; passo 3 = gravador C++ comprimido + prova "mesmo replay, erro máximo conhecido, X % do tamanho".
+- ✅ Fase 1: viewport 3D (commit `876dfe2`, já no `main` e no GitHub).
+- Branch de trabalho atual: `feat/live-foxglove`.
+- ✅ **Passo 1 (2026-11-17):** robô real ao vivo. `FoxgloveSource`, árvore de TF no frontend (pose por `map → odom → base_footprint`), formulário de conexão, perfil TurtleBot3 Waffle. Testado com a simulação do Nav2.
+- ▶️ **Próximo, passo 2:** gravar a simulação em MCAP e criar a `ReplaySource` (replay de dados reais na timeline).
+- Depois: passo 3 = gravador C++ comprimido + prova "mesmo replay, erro máximo conhecido, X % do tamanho".
 
 ## Ambiente da máquina do Bruno
 
@@ -54,3 +56,12 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 - Instalados: `turtlebot3_gazebo`, `nav2_bringup`, `rosbag2_storage_mcap`, Gazebo (`gz`), `foxglove_bridge` 3.6.3 (`ros2 launch foxglove_bridge foxglove_bridge_launch.xml`, porta 8765).
 - O apt costuma travar com o unattended-upgrade: usar `apt-get -o DPkg::Lock::Timeout=580 ...` para esperar a trava (ou snap `--classic`).
 - Dev server: `cd apps/web && npx vite --host 127.0.0.1 --port 5173 --strictPort` (o `npm run dev -- --flags` perde os flags).
+
+### Subir o robô simulado (sempre `source /opt/ros/jazzy/setup.bash` antes)
+
+1. Simulação + Nav2, sem janela: `ros2 launch nav2_bringup tb3_simulation_launch.py headless:=True use_rviz:=False` (sobe o **Waffle** no `turtlebot3_world`, nascendo em (-2, -0.5)).
+2. Pose inicial do AMCL (sem ela não existe o frame `map`): `ros2 topic pub -t 3 -r 2 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: map}, pose: {pose: {position: {x: -2.0, y: -0.5}, orientation: {w: 1.0}}}}"`
+3. Ponte: `ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765`
+4. Mandar andar: `ros2 topic pub -t 2 -r 1 /goal_pose geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 1.6, y: 0.5}, orientation: {w: 1.0}}}"`
+5. No 33moody: Conectar em `ws://localhost:8765` com o perfil TurtleBot3 Waffle.
+- A CLI do ROS falha (`context is invalid`) se vários `ros2 topic bw/hz` rodam em paralelo: rodar um de cada vez.

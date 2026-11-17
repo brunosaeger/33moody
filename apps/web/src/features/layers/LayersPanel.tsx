@@ -1,4 +1,4 @@
-import { useRobotProfile } from '@/config/robotProfiles';
+import { useRobotProfile } from '@/data';
 import { useSession } from '@/data';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { isLayerEnabled, useLayersStore } from './layersStore';

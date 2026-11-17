@@ -40,7 +40,8 @@ export const colors = {
 
 export const fonts = {
   ui: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-  brand: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+  /** Helvetica; no Linux cai na Nimbus Sans (clone métrico dela). */
+  brand: "Helvetica, 'Helvetica Neue', 'Nimbus Sans', 'Nimbus Sans L', Arial, sans-serif",
   mono: "ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', monospace",
 } as const;
 

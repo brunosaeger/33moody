@@ -1,3 +1,4 @@
+import { supportsReplay } from '@moody/data-sources';
 import { useClockDriver, useSession } from '@/data';
 import { PlaybackControls } from './PlaybackControls';
 import { RangePicker } from './RangePicker';
@@ -21,6 +22,8 @@ export function Timeline() {
 /** Separado para o "motor" do play só existir com a timeline visível. */
 function TimelineContent() {
   useClockDriver();
+  // Fonte sem histórico (robô ao vivo, sem gravação): só o presente.
+  const canReplay = useSession((s) => s.source !== null && supportsReplay(s.source));
 
   return (
     <section className={styles.timeline} aria-label="Linha do tempo">
@@ -29,13 +32,19 @@ function TimelineContent() {
         <div className={styles.left}>
           <ClockReadout />
         </div>
-        <PlaybackControls />
+        {canReplay ? <PlaybackControls /> : <span />}
         <div className={styles.right}>
           <LiveButton />
         </div>
       </div>
       <div className={styles.rangeRow}>
-        <RangePicker />
+        {canReplay ? (
+          <RangePicker />
+        ) : (
+          <span className={styles.noReplay}>
+            Replay indisponível: esta conexão é só ao vivo. Ele chega com a gravação (MCAP e historian).
+          </span>
+        )}
       </div>
     </section>
   );
