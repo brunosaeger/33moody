@@ -49,8 +49,11 @@ export function stampToSeconds(stamp: RosTime): number {
  */
 export class TfTree {
   private readonly edges = new Map<string, Edge>();
+  /** Frames presentes AGORA na árvore. */
   private readonly known = new Set<string>();
-  /** Muda quando aparece um frame novo (para a UI redesenhar a lista). */
+  /** Frames que já apareceram alguma vez (a lista que a UI mostra). */
+  private readonly seen = new Set<string>();
+  /** Muda quando aparece um frame nunca visto (para a UI redesenhar a lista). */
   version = 0;
 
   /** Aplica uma mensagem de /tf (`isStatic` = false) ou /tf_static (true). */
@@ -80,9 +83,9 @@ export class TfTree {
     return this.known.has(frame);
   }
 
-  /** Todos os frames conhecidos (filhos e pais). */
+  /** Todos os frames que já apareceram (filhos e pais). */
   frames(): string[] {
-    return [...this.known];
+    return [...this.seen];
   }
 
   /** O frame e todos os seus ancestrais até a raiz, ex.: base_footprint, odom, map. */
@@ -112,7 +115,18 @@ export class TfTree {
   clear(): void {
     this.edges.clear();
     this.known.clear();
+    this.seen.clear();
     this.version++;
+  }
+
+  /**
+   * Esvazia as transformações, mas lembra os frames já vistos (sem mudar
+   * `version`). Usado no replay, que reconstrói a árvore a cada posição do
+   * cursor: a lista de frames da UI não deve "piscar".
+   */
+  resetTransforms(): void {
+    this.edges.clear();
+    this.known.clear();
   }
 
   /** `T_raiz←frame` subindo pelos pais. */
@@ -130,8 +144,9 @@ export class TfTree {
   }
 
   private remember(frame: string): void {
-    if (this.known.has(frame)) return;
     this.known.add(frame);
+    if (this.seen.has(frame)) return;
+    this.seen.add(frame);
     this.version++;
   }
 }

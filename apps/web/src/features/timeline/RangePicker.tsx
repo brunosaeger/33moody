@@ -3,6 +3,7 @@ import { useClock } from '@/data';
 import { Button } from '@/shared/ui/Button';
 import { Icon } from '@/shared/ui/icons';
 import { validateRange } from './rangeInput';
+import { useDataBounds } from './useDataBounds';
 import { formatDateBR, parseLocalDateTime, toDateInput, toTimeInput } from '@/shared/lib/timeFormat';
 import styles from './RangePicker.module.css';
 
@@ -11,15 +12,21 @@ const SUGGESTED_SPAN_MS = 10 * 60 * 1000;
 
 /**
  * Calendário + hora inicial + hora final. Confirmar (botão ou Enter) entra
- * no modo replay com essa faixa.
+ * no modo replay com essa faixa. Numa gravação, começa com o arquivo inteiro.
  */
 export function RangePicker() {
   const startReplay = useClock((s) => s.startReplay);
+  const getBounds = useDataBounds();
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const [date, setDate] = useState(() => toDateInput(Date.now()));
-  const [start, setStart] = useState(() => toTimeInput(Date.now() - SUGGESTED_SPAN_MS));
-  const [end, setEnd] = useState(() => toTimeInput(Date.now()));
+  // Sugestão inicial: a gravação inteira, ou os últimos 10 minutos ao vivo.
+  const [initial] = useState(() => {
+    const b = getBounds();
+    return b.recorded ? b : { startMs: b.endMs - SUGGESTED_SPAN_MS, endMs: b.endMs };
+  });
+  const [date, setDate] = useState(() => toDateInput(initial.startMs));
+  const [start, setStart] = useState(() => toTimeInput(initial.startMs));
+  const [end, setEnd] = useState(() => toTimeInput(initial.endMs));
   const [error, setError] = useState<string | null>(null);
 
   const openCalendar = () => {
@@ -32,7 +39,7 @@ export function RangePicker() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const result = validateRange(date, start, end, Date.now());
+    const result = validateRange(date, start, end, getBounds());
     if (!result.ok) {
       setError(result.error);
       return;
@@ -53,7 +60,7 @@ export function RangePicker() {
           className={styles.hiddenDate}
           type="date"
           value={date}
-          max={toDateInput(Date.now())}
+          max={toDateInput(initial.endMs)}
           tabIndex={-1}
           aria-label="Data da faixa"
           onChange={(e) => setDate(e.target.value)}

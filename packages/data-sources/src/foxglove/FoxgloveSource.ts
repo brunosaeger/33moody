@@ -16,7 +16,7 @@ import type {
   TopicsListener,
   Unsubscribe,
 } from '../types';
-import { createDecoder, type Decoder } from './channelDecoder';
+import { createDecoder, type Decoder } from '../ros/cdrDecoder';
 
 /** Porta padrão do foxglove_bridge. */
 export const DEFAULT_FOXGLOVE_URL = 'ws://localhost:8765';
@@ -229,7 +229,13 @@ export class FoxgloveSource implements DataSource {
 
     let message: unknown;
     try {
-      entry.decoder ??= createDecoder(entry.channel);
+      const { channel } = entry;
+      entry.decoder ??= createDecoder({
+        topic: channel.topic,
+        messageEncoding: channel.encoding,
+        schemaEncoding: channel.schemaEncoding ?? 'ros2msg',
+        schema: channel.schema,
+      });
       message = entry.decoder(event.data);
     } catch (err) {
       entry.failed = true;

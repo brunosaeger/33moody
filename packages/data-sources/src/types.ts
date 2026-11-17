@@ -81,6 +81,26 @@ export interface DataSource {
    * Fontes que não guardam histórico simplesmente não implementam.
    */
   messageAt?(topic: string, timeMs: number): MessageEvent | undefined;
+
+  /**
+   * REPLAY (opcional): todas as mensagens do tópico com `startMs <= timeMs <= endMs`,
+   * em ordem de tempo. Usado onde a última mensagem não basta: o /tf vem
+   * "picado" (cada mensagem traz só parte da árvore) e a árvore no instante t
+   * precisa das mensagens dos segundos anteriores.
+   */
+  messagesInRange?(topic: string, startMs: number, endMs: number): MessageEvent[];
+
+  /**
+   * (Opcional) Fontes GRAVADAS (arquivo): o intervalo de tempo que existe.
+   * Elas não têm "ao vivo": a timeline abre direto em replay, nestes limites.
+   */
+  recordedRange?(): TimeSpan;
+}
+
+/** Intervalo de tempo em ms desde a época Unix. */
+export interface TimeSpan {
+  startMs: number;
+  endMs: number;
 }
 
 /** A fonte sabe responder "qual era a mensagem no instante t"? */
@@ -88,4 +108,11 @@ export function supportsReplay(
   source: DataSource,
 ): source is DataSource & Required<Pick<DataSource, 'messageAt'>> {
   return typeof source.messageAt === 'function';
+}
+
+/** A fonte é uma gravação (arquivo), sem "ao vivo"? */
+export function isRecording(
+  source: DataSource,
+): source is DataSource & Required<Pick<DataSource, 'recordedRange' | 'messageAt'>> {
+  return typeof source.recordedRange === 'function' && typeof source.messageAt === 'function';
 }

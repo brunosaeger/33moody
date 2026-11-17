@@ -8,14 +8,16 @@ Só aparece com robô conectado (`Timeline.tsx`; o `TimelineContent` monta o `us
 - `ruler.ts`: janelas de exibição live/replay e `computeTicks` alinhado ao fuso local.
 - `PlaybackControls.tsx`: skips de 1, 5, 10, 30 e x segundos (x personalizado, padrão 60 s), play/pause e velocidade.
 - `RangePicker.tsx`: calendário (`showPicker`), horas com segundos (`step=1`), sugestão dos últimos 10 min, botão "Ver replay".
-- `rangeInput.ts`: `validateRange` (máximo de 24 h; fim cortado em "agora").
+- `rangeInput.ts`: `validateRange(data, início, fim, bounds)` (máximo de 24 h; corta a faixa nos limites onde há dado). `DataBounds`: gravação = início e fim do arquivo; ao vivo = até "agora".
+- `useDataBounds.ts`: os limites da fonte atual.
+- **Gravação** (`isRecording`): a sessão abre direto em replay no arquivo inteiro; o `RangePicker` sugere o arquivo inteiro; no lugar de "Voltar ao vivo" aparece o selo GRAVAÇÃO.
 - `TimelineStatus.tsx`: relógio (`ClockReadout`) e botão de voltar ao vivo.
 - Formatação de datas e horas: `shared/lib/timeFormat.ts`.
 - Fonte sem histórico (`supportsReplay` falso, ex.: Foxglove ao vivo): sem controles de play nem seletor de faixa, só a régua ao vivo e um aviso.
 
 ## Pendências
 
-- Mostrar só a faixa onde **existe** dado gravado (vem com MCAP/historian).
+- Ao vivo com historian: mostrar na régua onde existe dado gravado.
 - Marcadores de evento (erros, paradas) na régua.
 - Faixa que atravessa a meia-noite.
 - Futuro: indicar o erro máximo do replay comprimido no trecho (ver [docs/CONTEXTO-armazenamento-de-dados.md](../../../../../docs/CONTEXTO-armazenamento-de-dados.md)).

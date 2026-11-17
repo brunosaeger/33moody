@@ -53,6 +53,38 @@ Medido com `ros2 topic bw` na simulação `nav2_bringup tb3_simulation_launch.py
 - O `/odom` (0,72 KB) também bateu: a maior parte são as covariâncias.
 - O que explica um incidente (pose, `cmd_vel`, estados do Nav2, `/amcl_pose`) é uma fração mínima do total.
 
+### 2.2 Medição real: arquivo MCAP com TODOS os tópicos (2026-11-17)
+
+Mesma simulação, robô vagando (`tools/sim/wander.py`), `ros2 bag record -a -s mcap` por 148 s, gravado **duas vezes ao mesmo tempo**: sem compressão e com `--storage-preset-profile zstd_fast`. Medido com `node tools/mcap/bag-stats.mjs <arquivo>`.
+
+| | No disco | Por hora |
+|---|---|---|
+| Sem compressão | 132,2 MB | **~3,0 GB/h** |
+| zstd_fast (sem perda) | 19,6 MB | **~480 MB/h** (6,7× menor) |
+
+Por tópico (sem compressão), os maiores:
+
+| Tópico | Hz | Bytes/msg | MB/h | % |
+|---|---|---|---|---|
+| 6 tópicos do global costmap (`costmap`, `costmap_raw`, `static_layer`, `static_layer_raw`, `obstacle_layer`, `obstacle_layer_raw`) | 0,6 cada | ~147 600 | ~295 cada, **~1 770 juntos** | **59 %** |
+| `/local_costmap/voxel_grid` | 5,0 | 14 480 | 247 | 8,2 |
+| `/particle_cloud` (AMCL) | 1,2 | 54 276 | 228 | 7,6 |
+| `/imu` | 192 | 324 | 214 | 7,1 |
+| `/joint_states` | 320 | 140 | 154 | 5,1 |
+| `/bond` (heartbeat do lifecycle do Nav2) | 238 | 92 | 76 | 2,5 |
+| `/odom` | 26,7 | 724 | 66 | 2,2 |
+| `/scan` | 4,8 | 2 944 | 49 | 1,6 |
+| `/tf` | 50,4 | 145 | 25 | 0,8 |
+| `/clock` | 320 | 12 | 13 | 0,4 |
+| `/map` | 1 msg | 147 560 | — | 0,1 |
+
+**Conclusões:**
+- **Gravar "tudo" (`-a`) é a pior escolha:** ~3 GB/h por robô, e 59 % disso são **seis cópias do mesmo mapa de custo** (o final, a versão `_raw` e cada camada).
+- **O que o replay do 33moody usa hoje** (`/tf`, `/tf_static`, `/odom`, `/scan`, `/map`, `/cmd_vel`) soma **~140 MB/h sem compressão, ~4,6 % do total**. Só escolher os tópicos certos já reduz ~20×, antes de qualquer compressão.
+- **zstd sem perda reduz 6,7×** nessa mistura (dados repetitivos comprimem bem). Escolher os tópicos e depois aplicar zstd deve ficar na casa de **dezenas de MB/h**. *A medir.*
+- Tópicos que parecem pequenos pesam pela FREQUÊNCIA: `/joint_states` (320 Hz), `/bond` (238 Hz), `/clock` (320 Hz).
+- Taxas medidas no relógio de parede com a simulação um pouco abaixo do tempo real.
+
 **Conclusões iniciais (estimativas):**
 - Os dados que explicam um incidente (pose, velocidades, comandos, estados, erros) são **pequenos**. Os pesados são os sensores brutos (scan, nuvem, câmera) e os costmaps.
 - Muito do volume é **redundância**: covariância constante, frames fixos, mapas repetidos, robô parado gerando a mesma pose a 50 Hz.
@@ -96,5 +128,10 @@ Para cada tópico e no total: **bytes por hora** (MCAP cru × MCAP com zstd × h
 - **2026-11-17**: o `/tf` vem "picado": cada mensagem traz só parte da árvore (a odometria publica `odom → base_footprint` a ~30 Hz; o AMCL publica `map → odom` em outro ritmo). Para o replay da pose, gravar `map → base_footprint` já composto, a uma taxa baixa com dead reckoning, é muito mais barato que regravar o `/tf` inteiro.
 - **2026-11-17**: frames fixos (`/tf_static`, ~15 no Waffle) chegam UMA vez. Gravar uma vez por sessão.
 - **2026-11-17 (medição)**: **todo sensor tem que ser reconstruído com a pose do instante da medição** (`header.stamp`), não a do momento em que é exibido. Com o robô vagando (giros de 0,9 rad/s), posicionar o scan pela pose "de agora" deu erro médio de 3,5 cm até a parede (p95 10,2 cm); pela pose no stamp via tf2, 1,4 cm (p95 2,4 cm), em 90 scans. Consequência para o historian: **guardar o `header.stamp` de cada medição e um histórico de pose denso o bastante para interpolar nesse instante**. Uma pose comprimida (dead reckoning) serve, desde que o replay interpole no stamp do sensor.
+- **2026-11-17 (medição)**: MCAP real com todos os tópicos: 3,0 GB/h cru, 480 MB/h com zstd; 59 % são as 6 cópias do global costmap (seção 2.2).
+- **2026-11-17**: o eixo de tempo do replay é o `logTime` do MCAP (relógio de PAREDE do gravador). O `header.stamp` (tempo de simulação) fica dentro das mensagens e é ele que o TF usa. Os dois relógios convivem no mesmo arquivo; o historian precisa guardar os dois.
+- **2026-11-17**: abrir o MCAP de 19,6 MB (124 MB descomprimidos) levou ~9 s no Chrome de teste, que é lento (sem GPU). Ler e descomprimir o arquivo inteiro na thread da UI não escala: para arquivos grandes, ler sob demanda pelo índice do MCAP, num Web Worker.
+- **2026-11-17 (medição)**: o `/scan` da simulação manda as 360 `intensities` **sempre zeradas**: 1,4 KB de zeros por mensagem, metade dos 2,9 KB. Num robô real o LiDAR pode ou não preencher o campo; se não preencher, é o primeiro candidato a não gravar (ou o zstd o reduz a quase nada).
+- **2026-11-17 (validação)**: o replay do 33moody bateu **exatamente** com o leitor oficial `rosbag2_py` em `/amcl_pose`, `/cmd_vel` e `/scan` (valores e stamps), comparando a mesma regra "última mensagem até t".
 - **2026-11-17**: o AMCL do Nav2 publica `map → odom` com o stamp **~1 s no futuro** (`transform_tolerance: 1.0`) e só atualiza depois de 0,25 m ou 0,2 rad. O replay precisa reproduzir isso como é (é comportamento real da localização), e não "corrigir".
 

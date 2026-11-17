@@ -1,4 +1,5 @@
-import { useClock } from '@/data';
+import { isRecording } from '@moody/data-sources';
+import { useClock, useSession } from '@/data';
 import { useNow } from '@/shared/hooks/useNow';
 import { formatClock, formatDateBR, formatDuration } from '@/shared/lib/timeFormat';
 import styles from './TimelineStatus.module.css';
@@ -32,6 +33,16 @@ export function ClockReadout() {
 export function LiveButton() {
   const mode = useClock((s) => s.mode);
   const goLive = useClock((s) => s.goLive);
+  // Gravação (arquivo) não tem presente para onde voltar.
+  const recording = useSession((s) => s.source !== null && isRecording(s.source));
+
+  if (recording) {
+    return (
+      <span className={styles.recordingPill} title="Reproduzindo um arquivo gravado">
+        GRAVAÇÃO
+      </span>
+    );
+  }
 
   if (mode === 'live') {
     return (

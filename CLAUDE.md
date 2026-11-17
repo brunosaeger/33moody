@@ -31,6 +31,7 @@ Este arquivo é só o **mapa** (é o único carregado sozinho em toda sessão). 
 | `apps/web/src/features/robot-components` | Aba Componentes: quadro de widgets por tópico | [CONTEXTO-componentes.md](apps/web/src/features/robot-components/CONTEXTO-componentes.md) |
 | **Armazenamento de dados** | **Caderno central: densidade de dados, rosbag/MCAP, compressão, historian** | [docs/CONTEXTO-armazenamento-de-dados.md](docs/CONTEXTO-armazenamento-de-dados.md) |
 | `tools/sim` | Ferramentas da simulação (não é produto): `wander.py`, nó Python que faz o TurtleBot vagar | docstring do próprio arquivo |
+| `tools/mcap` | `bag-stats.mjs`: mede um MCAP por tópico (msgs, Hz, bytes, MB/h). Instrumento do caderno de armazenamento | cabeçalho do próprio arquivo |
 | Especificação | UX, arquitetura e roadmap completos | [docs/01-especificacao-interface.md](docs/01-especificacao-interface.md) |
 
 Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/replay-engine`, `packages/protocol`, `apps/server`, `robot/` (workspace colcon C++: `moody_compression`, `moody_recorder`), `config/robots/`.
@@ -48,8 +49,8 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 - ✅ Fase 1: viewport 3D (commit `876dfe2`, já no `main` e no GitHub).
 - Branch de trabalho atual: `feat/live-foxglove`.
 - ✅ **Passo 1 (2026-11-17):** robô real ao vivo. `FoxgloveSource`, árvore de TF no frontend (pose por `map → odom → base_footprint`), formulário de conexão, perfil TurtleBot3 Waffle. Testado com a simulação do Nav2.
-- ▶️ **Próximo, passo 2:** gravar a simulação em MCAP e criar a `ReplaySource` (replay de dados reais na timeline).
-- Depois: passo 3 = gravador C++ comprimido + prova "mesmo replay, erro máximo conhecido, X % do tamanho".
+- ✅ **Passo 2 (2026-11-17):** replay de gravação real. `McapSource` abre `.mcap` no navegador; TF reconstruído no instante do cursor; rastro pelo TF; timeline em modo gravação. Medição do MCAP por tópico (caderno, seção 2.2).
+- ▶️ **Próximo, passo 3:** gravador C++ comprimido (historian) + prova "mesmo replay, erro máximo conhecido, X % do tamanho", comparando com o MCAP.
 
 ## Ambiente da máquina do Bruno
 
@@ -66,4 +67,6 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 4. Vagar sozinho (anda, e perto de obstáculo gira um ângulo aleatório para um lado aleatório): `python3 tools/sim/wander.py` (Ctrl+C para o robô). Não usar junto com um goal do Nav2.
    Ou mandar a um ponto: `ros2 topic pub -t 2 -r 1 /goal_pose geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 1.6, y: 0.5}, orientation: {w: 1.0}}}"`
 5. No 33moody: Conectar em `ws://localhost:8765` com o perfil TurtleBot3 Waffle.
+6. Gravar (em `recordings/`, fora do git): `ros2 bag record -a -s mcap --storage-preset-profile zstd_fast -o recordings/<nome>`. Ctrl+C para. No 33moody: "Abrir gravação (.mcap)". Medir: `node tools/mcap/bag-stats.mjs recordings/<nome>/<nome>_0.mcap`.
+- **RViz para comparar:** `ros2 run rviz2 rviz2 -d /opt/ros/jazzy/share/nav2_bringup/rviz/nav2_default_view.rviz`. Rodando de dentro do VS Code (instalado via **snap**), ele quebra com `symbol lookup error ... /snap/core20/.../libpthread`: o terminal herda `GTK_PATH`, `LOCPATH` etc. do snap. Rodar num terminal normal do Ubuntu, ou limpar essas variáveis (`env -u GTK_PATH -u GTK_EXE_PREFIX -u LOCPATH -u GIO_MODULE_DIR -u GSETTINGS_SCHEMA_DIR ...`). O aviso `glsl120 ... active samplers` do RViz é inofensivo.
 - A CLI do ROS falha (`context is invalid`) se vários `ros2 topic bw/hz` rodam em paralelo: rodar um de cada vez.

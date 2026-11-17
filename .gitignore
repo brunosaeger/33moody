@@ -16,3 +16,6 @@ datasets/
 .env
 .env.*
 .DS_Store
+
+# Gravações (MCAP) da simulação: grandes, não vão para o git
+recordings/

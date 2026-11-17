@@ -7,6 +7,8 @@ TypeScript puro, **sem React**. Define o contrato `DataSource` e as fontes de da
 - `start()`, `stop()`, `topics()` (deve devolver a **mesma referência** de array enquanto a lista não mudar), `onTopicsChange()`, `subscribe(topic, listener)`.
 - `messageAt?(topic, timeMs)`: **opcional**, só para fontes com histórico. Semântica atual: a **última mensagem publicada até `timeMs`** (degrau), ou `undefined` (inclusive para o futuro). Use `supportsReplay(source)` para checar.
 - `onStatusChange?(listener)`: **opcional**; fontes que podem cair avisam `{ state: 'closed', reason }`. Não é emitido quando a própria UI chama `stop()`.
+- `messagesInRange?(topic, startMs, endMs)`: **opcional**; todas as mensagens do intervalo, em ordem. O TF do replay precisa disso (cada /tf traz só parte da árvore).
+- `recordedRange?()`: **opcional**; fontes GRAVADAS (arquivo) informam o intervalo existente. `isRecording(source)` = tem `recordedRange` e `messageAt`; a sessão abre essas fontes direto em replay.
 - `MessageEvent.timeMs`: ms desde a época Unix **no relógio da timeline**. Fontes ao vivo usam o instante de chegada ao navegador (o `header.stamp` pode ser tempo de simulação, que começa em 0); fontes gravadas usam o instante gravado. `message` é o objeto JS com os **mesmos nomes de campo da msg ROS 2** (int64 vira `bigint`).
 
 ## Arquivos
@@ -28,13 +30,23 @@ TypeScript puro, **sem React**. Define o contrato `DataSource` e as fontes de da
   - **Uma assinatura no bridge por tópico**, compartilhada por todos os listeners; solta quando o último sai.
   - Guarda a **última mensagem** por tópico e entrega na hora a quem assina depois (comportamento "latched", essencial para `/map` e `/tf_static`).
   - Decodificador criado só na primeira mensagem: tópico não assinado não custa CPU.
-- `channelDecoder.ts`: esquema `ros2msg` → `MessageReader` (`@foxglove/rosmsg` + `@foxglove/rosmsg2-serialization`). Decodifica qualquer tipo, inclusive mensagens customizadas, sem tabela no código. `ros2idl` ainda não é suportado (avisa no console).
 - Não implementa `messageAt` (ao vivo não guarda histórico).
+
+## `ros/cdrDecoder.ts`: decodificação compartilhada
+
+Esquema `ros2msg` + mensagem `cdr` → `MessageReader` (`@foxglove/rosmsg` + `@foxglove/rosmsg2-serialization`). Recebe `{ topic, messageEncoding, schemaEncoding, schema }`, então serve ao bridge e ao MCAP. Decodifica qualquer tipo, inclusive mensagens customizadas, sem tabela no código. `ros2idl` ainda não é suportado (avisa no console).
+
+## `mcap/`: gravação em arquivo (passo 2, ✅ 2026-11-17)
+
+- `McapSource.ts`: recebe um `Blob`/`File` (`.mcap` do `ros2 bag record -s mcap`). No `start()`, lê o arquivo inteiro para a memória, abre com `McapIndexedReader` (`@mcap/core`) e percorre as mensagens em ordem, separando os **bytes** por tópico. Chunks zstd são descomprimidos com `fzstd` (JS puro; os descompressores WASM da Foxglove são CommonJS e dependem do `Buffer` do Node, o que não serve no navegador). Limite de 1,5 GB.
+  - Eixo do tempo = `logTime` (relógio de parede do gravador).
+  - Implementa `messageAt`, `messagesInRange`, `recordedRange` e `stats()` (mensagens e bytes por tópico). `subscribe` aceita listeners, mas nunca emite (não existe "ao vivo").
+- `TopicTrack.ts`: as mensagens de um tópico (tempos + bytes), busca binária e **decodificação sob demanda com cache** (2048 por tópico).
+- **Limite conhecido:** carrega o arquivo inteiro na thread da UI (~9 s para 124 MB descomprimidos no Chrome de teste). Para arquivos grandes: leitura sob demanda pelo índice e Web Worker.
 
 ## Próximo
 
-- `ReplaySource` (MCAP) e a fonte do historian. Ver [docs/CONTEXTO-armazenamento-de-dados.md](../../docs/CONTEXTO-armazenamento-de-dados.md).
-- Decodificar num Web Worker se tópicos pesados (costmaps, nuvens) travarem a UI.
+- A fonte do historian (gravação comprimida). Ver [docs/CONTEXTO-armazenamento-de-dados.md](../../docs/CONTEXTO-armazenamento-de-dados.md).
 
 ## Regras
 

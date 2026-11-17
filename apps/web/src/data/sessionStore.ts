@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { DataSource, Unsubscribe } from '@moody/data-sources';
+import { isRecording, type DataSource, type Unsubscribe } from '@moody/data-sources';
 import { DEMO_PROFILE, type RobotProfile } from '@/config/robotProfiles';
 import { useClock } from './clockStore';
 
@@ -42,6 +42,8 @@ export const useSession = create<SessionState>((set, get) => ({
       return;
     }
     set({ source, profile, status: 'connected' });
+    // Gravação não tem "ao vivo": abre direto em replay, no arquivo inteiro.
+    if (isRecording(source)) useClock.getState().startReplay(source.recordedRange());
 
     // Conexão que cai sozinha (robô desligou, rede caiu): volta para a
     // tela de conexão mostrando o motivo.
