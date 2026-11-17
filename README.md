@@ -38,7 +38,7 @@ Ainda vão entrar (ver o roadmap na spec): `packages/protocol`, `packages/replay
 ### Dentro de `apps/web/src`
 
 ```
-app/        composição: a tela única e o registro de janelas (panels.ts)
+app/        composição da tela única (App.tsx) e o registro das abas (sidebarTabs.ts)
 data/       sessão ativa (qual fonte de dados) e hooks React de leitura
 features/   uma pasta por funcionalidade (header, viewport, sidebar, connection…)
 config/     perfil do robô: tópicos, frames e dimensões (nada disso fica no código)

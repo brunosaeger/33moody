@@ -1,0 +1,21 @@
+# features/timeline: linha do tempo
+
+Só aparece com robô conectado (`Timeline.tsx`; o `TimelineContent` monta o `useClockDriver`). Ao vivo fica colada no presente; digitar uma faixa inicia o replay.
+
+## Arquivos
+
+- `TimelineBar.tsx`: régua, preenchimento da faixa, **dois marcadores vermelhos** (início e fim), **cursor em seta** arrastável com rótulo (que vira de lado perto da borda), marcador AGORA ao vivo. Arraste por pointer capture.
+- `ruler.ts`: janelas de exibição live/replay e `computeTicks` alinhado ao fuso local.
+- `PlaybackControls.tsx`: skips de 1, 5, 10, 30 e x segundos (x personalizado, padrão 60 s), play/pause e velocidade.
+- `RangePicker.tsx`: calendário (`showPicker`), horas com segundos (`step=1`), sugestão dos últimos 10 min, botão "Ver replay".
+- `rangeInput.ts`: `validateRange` (máximo de 24 h; fim cortado em "agora").
+- `TimelineStatus.tsx`: relógio (`ClockReadout`) e botão de voltar ao vivo.
+- Formatação de datas e horas: `shared/lib/timeFormat.ts`.
+
+## Pendências
+
+- Esconder ou bloquear o replay quando a fonte não tem histórico (`supportsReplay`), necessário com a fonte Foxglove ao vivo.
+- Mostrar só a faixa onde **existe** dado gravado (vem com MCAP/historian).
+- Marcadores de evento (erros, paradas) na régua.
+- Faixa que atravessa a meia-noite.
+- Futuro: indicar o erro máximo do replay comprimido no trecho (ver [docs/CONTEXTO-armazenamento-de-dados.md](../../../../../docs/CONTEXTO-armazenamento-de-dados.md)).
