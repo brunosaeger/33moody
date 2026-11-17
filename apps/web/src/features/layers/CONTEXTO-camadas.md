@@ -23,6 +23,8 @@
 Tudo o que uma camada mostra no replay tem que depender só do cursor atual (e da fonte), nunca de por onde o cursor passou antes. Assim, avançar rápido segurando a seta até t e pular direto para t desenham **exatamente** igual. Validado em 2026-11-17: valores dos componentes iguais ao `rosbag2_py` e **0 pixels diferentes** no 3D, em três paradas, inclusive a 8×.
 - Cache só por identidade de dado (ex.: o `MapLayer` reconstrói a textura quando o `grid.data` muda; o `ScanLayer` refaz os pontos quando chega outro scan).
 - Nada derivado da árvore de TF fica "congelado": o `ScanLayer` recalcula a pose do laser **todo quadro**. Antes ela só era calculada na chegada do scan e podia ficar com a árvore de um instante anterior.
+- **Sem dado no instante = não mostra nada.** Nunca manter o último desenho: o `MapLayer` esvazia a textura quando não há `/map` até o cursor; a camada TF de um perfil com TF não cai nos frames "derivados" do demo.
+- **Rótulos HTML na cena: sempre `SceneLabel`** (`lib/scene3d`), nunca o `Html` do drei direto. O `Html` ignora o `visible` do three e deixava o nome do frame "congelado" na última posição (bug de 2026-11-17).
 - A única memória permitida é **visual e passageira**: a suavização da pose do robô, que converge em ~0,3 s.
 - Mensagens decodificadas são compartilhadas pelo cache da fonte: **nunca modificar** um objeto de mensagem.
 

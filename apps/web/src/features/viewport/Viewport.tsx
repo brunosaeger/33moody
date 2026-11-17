@@ -1,6 +1,7 @@
 import { useSession } from '@/data';
 import { ConnectCard, ConnectionBadge } from '@/features/connection';
 import { CameraToolbar } from './camera/CameraToolbar';
+import { FrameWarning } from './FrameWarning';
 import { ModeChip } from './ModeChip';
 import { Scene } from './scene/Scene';
 import styles from './Viewport.module.css';
@@ -29,6 +30,7 @@ export function Viewport() {
       <div className={styles.overlayTopLeft}>
         <ConnectionBadge />
         <ModeChip />
+        <FrameWarning />
       </div>
       <div className={styles.overlayTopRight}>
         <CameraToolbar />

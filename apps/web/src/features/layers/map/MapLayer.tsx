@@ -26,7 +26,16 @@ export function MapLayer({ profile }: LayerProps) {
   // O mapa muda raramente: só reconstrói a textura quando o grid é outro.
   useFrame(() => {
     const grid = message.current?.message;
-    if (!grid || grid.data === lastData.current) return;
+    // Sem mapa NESTE instante (ex.: início de uma gravação, antes do /map
+    // chegar): não mostra nenhum. Manter o último seria mostrar o passado.
+    if (!grid) {
+      if (lastData.current !== null) {
+        lastData.current = null;
+        setView(null);
+      }
+      return;
+    }
+    if (grid.data === lastData.current) return;
     lastData.current = grid.data;
     const { resolution, width, height, origin } = grid.info;
     const w = width * resolution;

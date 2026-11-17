@@ -85,6 +85,36 @@ Por tópico (sem compressão), os maiores:
 - Tópicos que parecem pequenos pesam pela FREQUÊNCIA: `/joint_states` (320 Hz), `/bond` (238 Hz), `/clock` (320 Hz).
 - Taxas medidas no relógio de parede com a simulação um pouco abaixo do tempo real.
 
+### 2.3 Medição real: gravações do ROBÔ REAL da empresa parceira (2026-11-17)
+
+8 MCAPs (ROS 2 Jazzy) de 05/11 e 09/11/2026, em `recordings/rosbags/` (fora do git). Já gravados com **seleção de tópicos** (11–14 tópicos), mas **sem compressão**. Medido com `tools/mcap/bag-stats.mjs`.
+
+| Gravação | Duração | Tamanho | Por hora |
+|---|---|---|---|
+| 05/11 14:55:58 | 55 s | 137 MB | **8,9 GB/h** |
+| 09/11 10:19:42 | 71 s | 169 MB | **8,5 GB/h** |
+| 09/11 16:23:42 | 371 s | 861 MB | ~8,4 GB/h |
+
+Por tópico (09/11 10:19:42):
+
+| Tópico | Hz | Bytes/msg | MB/h | % |
+|---|---|---|---|---|
+| `/global_costmap/costmap` | 0,9 | **2 218 626** | **7 055** | **82,8** |
+| `/particle_cloud` | 2,7 | 72 314 | 669 | 7,8 |
+| `/scan` (2170 feixes, 360°) | 9,9 | 17 424 | 593 | 7,0 |
+| `/map` (1814×1223 células, 91×61 m) | 1 msg | 2 218 626 | — | 1,3 |
+| `/odom` | 20 | 724 | 50 | 0,6 |
+| `/tf` | 40 | 128 | 18 | 0,2 |
+| `/amcl_pose`, `/cmd_vel`, `/wheel_readings`, `/diagnostics` | 3–20 | 52–368 | 3–4 cada | < 0,1 cada |
+
+**Conclusões (dado real):**
+- **~8,5–8,9 GB por hora por robô**, mesmo escolhendo tópicos. Uma frota de 10 robôs em 2 turnos daria ~1,4 TB/dia.
+- **O global costmap é 75–83 % de tudo**: num mapa de armazém (91 × 61 m), cada mensagem tem 2,2 MB, republicada ~1×/s quase igual. Não gravar o costmap inteiro (ou gravar só as mudanças / reconstruir do mapa + scan) resolve sozinho a maior parte do problema.
+- O `/particle_cloud` (nuvem do AMCL) vem em segundo; útil só em diagnóstico de localização, ou seja, candidato a gravar só por evento.
+- **O que explica um incidente** (`/odom`, `/tf`, `/amcl_pose`, `/cmd_vel`, rodas, diagnósticos) soma **< 1 %** do volume.
+- **Metade das gravações tem relógio zerado** (logTime ~800 s → "1969"): o gravador não estava com o relógio real. O historian precisa gravar o relógio de parede de forma garantida (e marcar quando ele não for confiável).
+- **Uma gravação (`05_11_2026/15_20_19`) está cortada** (sem rodapé/índice, termina em `ff ff…`, sem `metadata.yaml`): o robô parou no meio. A gravação do momento do problema é a que mais corre risco: o formato do historian tem que sobreviver a desligamento abrupto (escrever em blocos fechados, nunca depender de um índice no fim).
+
 **Conclusões iniciais (estimativas):**
 - Os dados que explicam um incidente (pose, velocidades, comandos, estados, erros) são **pequenos**. Os pesados são os sensores brutos (scan, nuvem, câmera) e os costmaps.
 - Muito do volume é **redundância**: covariância constante, frames fixos, mapas repetidos, robô parado gerando a mesma pose a 50 Hz.
@@ -132,6 +162,7 @@ Para cada tópico e no total: **bytes por hora** (MCAP cru × MCAP com zstd × h
 - **2026-11-17**: o eixo de tempo do replay é o `logTime` do MCAP (relógio de PAREDE do gravador). O `header.stamp` (tempo de simulação) fica dentro das mensagens e é ele que o TF usa. Os dois relógios convivem no mesmo arquivo; o historian precisa guardar os dois.
 - **2026-11-17**: abrir o MCAP de 19,6 MB (124 MB descomprimidos) levou ~9 s no Chrome de teste, que é lento (sem GPU). Ler e descomprimir o arquivo inteiro na thread da UI não escala: para arquivos grandes, ler sob demanda pelo índice do MCAP, num Web Worker.
 - **2026-11-17 (medição)**: o `/scan` da simulação manda as 360 `intensities` **sempre zeradas**: 1,4 KB de zeros por mensagem, metade dos 2,9 KB. Num robô real o LiDAR pode ou não preencher o campo; se não preencher, é o primeiro candidato a não gravar (ou o zstd o reduz a quase nada).
+- **2026-11-17 (medição)**: **toda gravação começa "cega".** Neste MCAP: `/tf` em +98 ms, `/scan` em +1077 ms, `/amcl_pose` em +1366 ms, `/map` em +1411 ms. O `map → odom` só aparece quando o AMCL processa o primeiro scan (~+1,4 s). Até lá não há mapa nem robô localizado. Consequência para o historian: **cada arquivo/bloco gravado deve começar com um "retrato do estado"** (último `/map`, `/tf_static`, último `map → odom` e o estado dos nós), senão o começo de cada trecho fica sem contexto. É o equivalente a um "keyframe" de vídeo.
 - **2026-11-17 (validação)**: o replay do 33moody bateu **exatamente** com o leitor oficial `rosbag2_py` em `/amcl_pose`, `/cmd_vel` e `/scan` (valores e stamps), comparando a mesma regra "última mensagem até t".
 - **2026-11-17**: o AMCL do Nav2 publica `map → odom` com o stamp **~1 s no futuro** (`transform_tolerance: 1.0`) e só atualiza depois de 0,25 m ou 0,2 rad. O replay precisa reproduzir isso como é (é comportamento real da localização), e não "corrigir".
 

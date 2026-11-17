@@ -50,7 +50,10 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 - Branch de trabalho atual: `feat/live-foxglove`.
 - ✅ **Passo 1 (2026-11-17):** robô real ao vivo. `FoxgloveSource`, árvore de TF no frontend (pose por `map → odom → base_footprint`), formulário de conexão, perfil TurtleBot3 Waffle. Testado com a simulação do Nav2.
 - ✅ **Passo 2 (2026-11-17):** replay de gravação real. `McapSource` abre `.mcap` no navegador; TF reconstruído no instante do cursor; rastro pelo TF; timeline em modo gravação. Medição do MCAP por tópico (caderno, seção 2.2).
-- ▶️ **Próximo, passo 3:** gravador C++ comprimido (historian) + prova "mesmo replay, erro máximo conhecido, X % do tamanho", comparando com o MCAP.
+- ✅ Extras do replay: precisão de ms, passo mensagem a mensagem, atalhos (Espaço, setas com escada 2×/4×/8×, ↑↓, `,` `.`), pontos de interesse Q…M, busca de tópicos, tela cheia, aviso "sem localização no map".
+- 📦 **Gravações do robô real** (empresa parceira) em `recordings/rosbags/` (fora do git): abrem no 33moody com o perfil do TurtleBot (mesma árvore Nav2). Medição: ~8,5 GB/h (caderno, seção 2.3).
+- ▶️ **Próximo (proposto), "robustez com dados reais":** perfil do robô real (corpo ~70×40 cm; nome a definir), relógio sem data (gravações em "1969"), abrir MCAP cortado (sem índice), arquivos grandes (leitura sob demanda / Web Worker).
+- Depois, passo 3: gravador C++ comprimido (historian) + prova "mesmo replay, erro máximo conhecido, X % de 8,5 GB/h", usando as gravações reais como referência.
 
 ## Ambiente da máquina do Bruno
 

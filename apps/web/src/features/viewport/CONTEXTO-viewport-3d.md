@@ -15,6 +15,8 @@
 - `RobotPoseProvider`: pose pelo perfil, `odometry` (demo) ou `tf` (`sceneFrame → baseFrame`). Roda em `useFrame` com prioridade -1, suaviza (14/s) e salta direto acima de 1 m. `useRobotPose()` = suavizada (para desenhar o robô); `useLatestRobotPose()` = sem suavização.
 - **Regra:** medição de sensor NUNCA vai presa à pose atual do robô (`FollowRobot`). Ela é fixada no mundo com a pose do instante dela (`header.stamp`). Presa ao robô, ela "balança" quando ele gira (bug corrigido em 2026-11-17: erro médio de 3,5 cm caiu para 1,4 cm). A suavização da pose é só visual e só vale para o modelo do robô.
 - `FollowRobot`: grupo que acompanha a pose; tudo "preso" ao robô vai dentro dele.
+- `SceneLabel`: rótulo HTML (drei `Html`) que some junto com o objeto 3D (via `visibility`; o drei usa `display` para oclusão).
+- `sceneFrameStore` (`useSceneFrame`): o `RobotPoseProvider` publica em qual frame a cena está e qual deveria estar. O `FrameWarning` (sobreposição do viewport) mostra **"Sem localização no map: exibindo no frame odom"** quando a cena caiu no plano B, porque aí a posição do robô não bate com o mapa e ele "salta" quando a localização chega. Acontece ao vivo antes da pose inicial e no início de gravações.
 
 ## Convenções
 

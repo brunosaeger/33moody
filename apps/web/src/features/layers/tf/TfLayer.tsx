@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
-import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { RobotProfile } from '@/config/robotProfiles';
-import { FollowRobot, sceneFrame, useTfTree } from '@/lib/scene3d';
+import { FollowRobot, SceneLabel, sceneFrame, useTfTree } from '@/lib/scene3d';
 import type { TfTree } from '@/lib/tf';
 import type { LayerProps } from '../types';
 import styles from './TfLayer.module.css';
@@ -23,9 +22,9 @@ function Frame({ name, size, labelZ = size * 0.9, hideLabel = false }: FrameProp
     <group>
       <axesHelper args={[size]} />
       {!hideLabel && (
-        <Html position={[0, 0, labelZ]} center className={styles.label} zIndexRange={[10, 0]}>
+        <SceneLabel position={[0, 0, labelZ]} center className={styles.label} zIndexRange={[10, 0]}>
           {name}
-        </Html>
+        </SceneLabel>
       )}
     </group>
   );
@@ -91,8 +90,9 @@ function labeledFrames(tree: TfTree, profile: RobotProfile): Set<string> {
 
 /**
  * Frames de coordenadas.
- * - Com /tf (robô real): TODOS os frames da árvore, como o display TF do RViz.
- * - Sem /tf (robô demo): map, base_link e laser derivados da pose e do perfil.
+ * - Perfil com TF (robô real): TODOS os frames da árvore, como o display TF
+ *   do RViz. Sem TF no instante, nenhum.
+ * - Perfil sem TF (robô demo): map, base_link e laser derivados da pose e do perfil.
  */
 export function TfLayer({ profile }: LayerProps) {
   const tree = useTfTree();
@@ -106,7 +106,9 @@ export function TfLayer({ profile }: LayerProps) {
     setFrames(tree.frames().sort());
   });
 
-  if (frames.length > 0) {
+  // Robô com TF: só a árvore real (vazia enquanto não houver TF no instante).
+  // Os frames "derivados" abaixo são só para o robô sem TF (demo).
+  if (profile.pose.kind === 'tf') {
     const labeled = labeledFrames(tree, profile);
     return (
       <>

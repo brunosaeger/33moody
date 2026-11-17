@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useRef, type ReactNode, type RefObject } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { RobotProfile } from '@/config/robotProfiles';
@@ -6,6 +6,7 @@ import { useTopicRef } from '@/data';
 import { quaternionToYaw, type Odometry } from '@/lib/ros';
 import { yawOf, type TfTree } from '@/lib/tf';
 import { sceneFrame } from './sceneFrame';
+import { useSceneFrame } from './sceneFrameStore';
 import { useTfTree } from './tfTree';
 
 /** Pose do robô no plano (frame da cena = map). */
@@ -61,7 +62,10 @@ export function RobotPoseProvider({ profile, children }: { profile: RobotProfile
     let target: Pose2D | null = null;
     if (profile.pose.kind === 'tf') {
       target = poseFromTf(tree, profile, profile.pose.baseFrame);
+      // Avisa a interface em qual frame a cena está (o plano B tem aviso).
+      useSceneFrame.getState().set(target ? sceneFrame(tree, profile) : null, profile.pose.fixedFrame);
     } else {
+      useSceneFrame.getState().set(null, null); // sem TF, sem plano B
       const p = odom.current?.message.pose.pose;
       if (p) target = { x: p.position.x, y: p.position.y, yaw: quaternionToYaw(p.orientation) };
     }
@@ -81,6 +85,9 @@ export function RobotPoseProvider({ profile, children }: { profile: RobotProfile
     cur.y += (target.y - cur.y) * k;
     cur.yaw += angleDelta(cur.yaw, target.yaw) * k;
   }, -1);
+
+  // Cena desmontada (desconectou): nada de aviso velho na tela.
+  useEffect(() => () => useSceneFrame.getState().set(null, null), []);
 
   return <RobotPoseContext.Provider value={refs}>{children}</RobotPoseContext.Provider>;
 }

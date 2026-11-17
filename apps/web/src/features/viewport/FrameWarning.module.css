@@ -1,0 +1,24 @@
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--state-warn);
+  background: rgba(14, 17, 22, 0.85);
+  border: 1px solid var(--state-warn);
+  border-radius: var(--radius-md);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--state-warn);
+  color: var(--panel-base);
+  font-size: 11px;
+}
