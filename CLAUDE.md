@@ -30,6 +30,7 @@ Este arquivo é só o **mapa** (é o único carregado sozinho em toda sessão). 
 | `apps/web/src/features/timeline` | Linha do tempo: ao vivo, faixa de replay, cursor, controles | [CONTEXTO-linha-do-tempo.md](apps/web/src/features/timeline/CONTEXTO-linha-do-tempo.md) |
 | `apps/web/src/features/robot-components` | Aba Componentes: quadro de widgets por tópico | [CONTEXTO-componentes.md](apps/web/src/features/robot-components/CONTEXTO-componentes.md) |
 | **Armazenamento de dados** | **Caderno central: densidade de dados, rosbag/MCAP, compressão, historian** | [docs/CONTEXTO-armazenamento-de-dados.md](docs/CONTEXTO-armazenamento-de-dados.md) |
+| `tools/sim` | Ferramentas da simulação (não é produto): `wander.py`, nó Python que faz o TurtleBot vagar | docstring do próprio arquivo |
 | Especificação | UX, arquitetura e roadmap completos | [docs/01-especificacao-interface.md](docs/01-especificacao-interface.md) |
 
 Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/replay-engine`, `packages/protocol`, `apps/server`, `robot/` (workspace colcon C++: `moody_compression`, `moody_recorder`), `config/robots/`.
@@ -62,6 +63,7 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 1. Simulação + Nav2, sem janela: `ros2 launch nav2_bringup tb3_simulation_launch.py headless:=True use_rviz:=False` (sobe o **Waffle** no `turtlebot3_world`, nascendo em (-2, -0.5)).
 2. Pose inicial do AMCL (sem ela não existe o frame `map`): `ros2 topic pub -t 3 -r 2 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: map}, pose: {pose: {position: {x: -2.0, y: -0.5}, orientation: {w: 1.0}}}}"`
 3. Ponte: `ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765`
-4. Mandar andar: `ros2 topic pub -t 2 -r 1 /goal_pose geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 1.6, y: 0.5}, orientation: {w: 1.0}}}"`
+4. Vagar sozinho (anda, e perto de obstáculo gira um ângulo aleatório para um lado aleatório): `python3 tools/sim/wander.py` (Ctrl+C para o robô). Não usar junto com um goal do Nav2.
+   Ou mandar a um ponto: `ros2 topic pub -t 2 -r 1 /goal_pose geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 1.6, y: 0.5}, orientation: {w: 1.0}}}"`
 5. No 33moody: Conectar em `ws://localhost:8765` com o perfil TurtleBot3 Waffle.
 - A CLI do ROS falha (`context is invalid`) se vários `ros2 topic bw/hz` rodam em paralelo: rodar um de cada vez.
