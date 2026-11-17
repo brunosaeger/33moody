@@ -51,6 +51,6 @@ Ainda não existem (criar o `CONTEXTO-*.md` junto com o módulo): `packages/repl
 ## Ambiente da máquina do Bruno
 
 - Ubuntu 24.04; ROS 2 **Jazzy** em `/opt/ros/jazzy` (também há noetic e rolling; usar jazzy).
-- Instalados: `turtlebot3_gazebo`, `nav2_bringup`, `rosbag2_storage_mcap`, Gazebo (`gz`). **Falta:** `ros-jazzy-foxglove-bridge`.
-- O apt costuma travar com o unattended-upgrade: esperar ou usar snap (`--classic`).
+- Instalados: `turtlebot3_gazebo`, `nav2_bringup`, `rosbag2_storage_mcap`, Gazebo (`gz`), `foxglove_bridge` 3.6.3 (`ros2 launch foxglove_bridge foxglove_bridge_launch.xml`, porta 8765).
+- O apt costuma travar com o unattended-upgrade: usar `apt-get -o DPkg::Lock::Timeout=580 ...` para esperar a trava (ou snap `--classic`).
 - Dev server: `cd apps/web && npx vite --host 127.0.0.1 --port 5173 --strictPort` (o `npm run dev -- --flags` perde os flags).
